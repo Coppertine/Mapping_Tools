@@ -15,60 +15,77 @@
         </Grid.RowDefinitions>
         <Grid Name="FirstGrid" Grid.Row="0">
             <StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock FontSize="40" FontWeight="Bold" Foreground="{DynamicResource PrimaryHueMidBrush}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="40" FontWeight="Bold" Foreground="{DynamicResource PrimaryHueMidBrush}">
                   <Run Text="Map Cleaner"/>
-                </TextBlock>
-                <materialDesign:PopupBox Margin="10" VerticalAlignment="Bottom">
-                  <materialDesign:PopupBox.ToggleContent>
-                    <materialDesign:PackIcon Kind="HelpCircle" Width="24" Height="24" Foreground="{DynamicResource SecondaryAccentBrush}"/>
-                  </materialDesign:PopupBox.ToggleContent>
-                  <TextBlock TextWrapping="Wrap" MaxWidth="600" Padding="5">
+                    </TextBlock>
+                    <materialDesign:PopupBox Margin="10" VerticalAlignment="Bottom">
+                        <materialDesign:PopupBox.ToggleContent>
+                            <materialDesign:PackIcon Kind="HelpCircle" Width="24" Height="24" Foreground="{DynamicResource SecondaryAccentBrush}"/>
+                        </materialDesign:PopupBox.ToggleContent>
+                        <TextBlock TextWrapping="Wrap" MaxWidth="600" Padding="5">
                     It cleans the current map of useless greenlines and it also lets you do some other stuff regarding the whole map.
                     <LineBreak/>
                     Map cleaner cleans useless greenline stuff by storing all the influences of the timingpoints and then removing all the timingpoints and then rebuilding all the timingpoints in a good way. This means the greenlines automatically get resnapped to the objects that use them.
-                  </TextBlock>
-                </materialDesign:PopupBox>
-              </StackPanel>
-              
-                <CheckBox FontSize="14" x:Name="ResnapObjects" Cursor="Hand" Margin="0,10,0,0">
-                    Resnap objects
-                </CheckBox>
-                <CheckBox FontSize="14" x:Name="ResnapBookmarks" Cursor="Hand">
-                    Resnap bookmarks
-                </CheckBox>
-                <CheckBox FontSize="14" x:Name="RemoveMuting" Cursor="Hand">
-                    Remove muting
-                </CheckBox>
-                <CheckBox FontSize="14" x:Name="RemoveUnclickableHitsounds" Cursor="Hand">
-                    Mute unclickable hitsounds
-                </CheckBox>
+                        </TextBlock>
+                    </materialDesign:PopupBox>
+                </StackPanel>
+                <TabControl>
+                    <TabItem Header="Uninherited Snapping" HorizontalAlignment="Left" Height="22" Margin="0,0,-33.8,-2.8" VerticalAlignment="Top" Width="145">
+                        <StackPanel CanVerticallyScroll="True" CanHorizontallyScroll="True" Margin="10">
+                            <CheckBox FontSize="14" x:Name="ResnapObjects" Cursor="Hand" Margin="0,10,0,0">
+                                Resnap objects
+                            </CheckBox>
+                            <CheckBox FontSize="14" x:Name="ResnapBookmarks" Cursor="Hand">
+                                Resnap bookmarks
+                            </CheckBox>
+                            <CheckBox FontSize="14" x:Name="RemoveMuting" Cursor="Hand">
+                                Remove muting
+                            </CheckBox>
+                            <CheckBox FontSize="14" x:Name="RemoveUnclickableHitsounds" Cursor="Hand">
+                                Mute unclickable hitsounds
+                            </CheckBox>
 
-                <TextBlock Text="Map info" Margin="0,20,0,0" FontSize="14" FontWeight="Bold"/>
-                <CheckBox FontSize="14" x:Name="VolumeSliders" Cursor="Hand" IsChecked="True">
-                    Map uses volume changes in sliders
-                </CheckBox>
-                <CheckBox FontSize="14" Name="SamplesetSliders" Cursor="Hand" IsChecked="True">
-                    Map uses sampleset changes in sliders
-                </CheckBox>
-                <CheckBox FontSize="14" x:Name="VolumeSpinners" Cursor="Hand" IsChecked="True">
-                    Map uses volume changes in spinners
-                </CheckBox>
+                            <TextBlock Text="Map info" Margin="0,20,0,0" FontSize="14" FontWeight="Bold"/>
+                            <CheckBox FontSize="14" x:Name="VolumeSliders" Cursor="Hand" IsChecked="True">
+                                Map uses volume changes in sliders
+                            </CheckBox>
+                            <CheckBox FontSize="14" Name="SamplesetSliders" Cursor="Hand" IsChecked="True">
+                                Map uses sampleset changes in sliders
+                            </CheckBox>
+                            <CheckBox FontSize="14" x:Name="VolumeSpinners" Cursor="Hand" IsChecked="True">
+                                Map uses volume changes in spinners
+                            </CheckBox>
 
-                <TextBlock Text="Signatures" Margin="0,20,0,0" FontSize="14" FontWeight="Bold"/>
-                <ComboBox FontSize="14" x:Name="Snap1" Cursor="Hand" SelectedIndex="4" Width="60" HorizontalAlignment="Left">
-                    <ComboBoxItem Content="1/1" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/2" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/4" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/8" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/16" Cursor="Hand"/>
-                </ComboBox>
-                <ComboBox FontSize="14" x:Name="Snap2" Cursor="Hand" SelectedIndex="3" Width="60" HorizontalAlignment="Left">
-                    <ComboBoxItem Content="1/1" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/3" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/6" Cursor="Hand"/>
-                    <ComboBoxItem Content="1/12" Cursor="Hand"/>
-                </ComboBox>
+                            <TextBlock Text="Signatures" Margin="0,20,0,0" FontSize="14" FontWeight="Bold"/>
+                            <ComboBox FontSize="14" x:Name="Snap1" Cursor="Hand" SelectedIndex="4" Width="60" HorizontalAlignment="Left">
+                                <ComboBoxItem Content="1/1" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/2" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/4" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/8" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/16" Cursor="Hand"/>
+                            </ComboBox>
+                            <ComboBox FontSize="14" x:Name="Snap2" Cursor="Hand" SelectedIndex="3" Width="60" HorizontalAlignment="Left">
+                                <ComboBoxItem Content="1/1" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/3" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/6" Cursor="Hand"/>
+                                <ComboBoxItem Content="1/12" Cursor="Hand"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Combo Colors" HorizontalAlignment="Left" Height="22" VerticalAlignment="Bottom" Width="93" Margin="-1.8,-2,0,2.4">
+                        <StackPanel CanVerticallyScroll="True" CanHorizontallyScroll="True" Margin="10">
+                            <ListView Height="154" Margin="0,0,371.8,0">
+
+                            </ListView>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Metadata" HorizontalAlignment="Left" Height="22" VerticalAlignment="Top" Width="76" Margin="-2.4,-2,-20,0">
+                        <StackPanel CanVerticallyScroll="True" CanHorizontallyScroll="True" Margin="10">
+                            
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
             </StackPanel>
             <Viewbox VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" Margin="10">
                 <Button
