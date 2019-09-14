@@ -14,6 +14,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -140,7 +141,8 @@ namespace Mapping_Tools.Viewmodels {
             }
         }
 
-        private void UpdateTimerTick(object sender, EventArgs e) {
+        private void UpdateTimerTick(object sender, EventArgs e)
+        {
             var reader = EditorReaderStuff.GetEditorReader();
             switch (_state) {
                 case State.Disabled:
@@ -224,6 +226,20 @@ namespace Mapping_Tools.Viewmodels {
                     }
 
                     _overlay.Update();
+                    PresentationSource source =
+                        PresentationSource.FromVisual(MainWindow.AppWindow);
+                    double dpiX =
+                        source.CompositionTarget.TransformToDevice.M11;
+                    double dpiY =
+                        source.CompositionTarget.TransformToDevice.M22;
+                    _coordinateConverter.OsuWindowPosition = new Vector2(_osuWindow.X, _osuWindow.Y);
+                    var bounds = _coordinateConverter.GetEditorGridBox();
+                    Console.WriteLine(bounds);
+                    Console.WriteLine(System.Windows.Forms.Cursor.Position);
+                    _overlay.OverlayWindow.Left = bounds.Left / dpiX + 0.2;
+                    _overlay.OverlayWindow.Top = bounds.Top / dpiY + 0.2;
+                    _overlay.OverlayWindow.Width = bounds.Width / dpiX + 0.2;
+                    _overlay.OverlayWindow.Height = bounds.Height / dpiY + 0.2;
 
                     if (!_autoSnapTimer.IsEnabled && IsHotkeyDown(SnapHotkey)) {
                         _autoSnapTimer.Start();
