@@ -13,9 +13,6 @@ namespace Mapping_Tools.Views {
     /// </summary>
     [SmartQuickRunUsage(SmartQuickRunTargets.AnySelection)]
     public partial class SliderCompletionatorView : IQuickRun {
-        private readonly BackgroundWorker backgroundWorker;
-        private bool canRun = true;
-
         public event EventHandler RunFinished;
 
         public static readonly string ToolName = "Slider Completionator";
@@ -26,10 +23,9 @@ namespace Mapping_Tools.Views {
             InitializeComponent();
             Width = MainWindow.AppWindow.content_views.Width;
             Height = MainWindow.AppWindow.content_views.Height;
-            backgroundWorker = (BackgroundWorker) FindResource("backgroundWorker") ;
         }
 
-        private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
+        protected override void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
             var bgw = sender as BackgroundWorker;
             e.Result = Complete_Sliders((Arguments) e.Argument, bgw, e);
         }
@@ -61,13 +57,12 @@ namespace Mapping_Tools.Views {
         }
 
         private void RunTool(string[] paths, bool quick = false) {
-            if (!canRun) return;
+            if (!CanRun) return;
 
             IOHelper.SaveMapBackup(paths);
 
-            backgroundWorker.RunWorkerAsync(new Arguments(paths, TemporalBox.GetDouble(), SpatialBox.GetDouble(), SelectionModeBox.SelectedIndex, quick));
-            start.IsEnabled = false;
-            canRun = false;
+            BackgroundWorker.RunWorkerAsync(new Arguments(paths, TemporalBox.GetDouble(), SpatialBox.GetDouble(), SelectionModeBox.SelectedIndex, quick));
+            CanRun = false;
         }
 
         private struct Arguments {
