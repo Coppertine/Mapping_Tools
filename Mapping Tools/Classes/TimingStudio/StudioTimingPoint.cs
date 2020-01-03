@@ -33,18 +33,18 @@ namespace Mapping_Tools.Classes.TimingStudio
         /// <param name="sampleSet"></param>
         /// <param name="sampleIndex"></param>
         /// <param name="volume"></param>
-        /// <param name="inherited"></param>
+        /// <param name="uninherited"></param>
         /// <param name="kiai"></param>
         /// <param name="omitFirstBarLine"></param>
-        public StudioTimingPoint(double offset, double mpb, int meter, SampleSet sampleSet, int sampleIndex, double volume, bool inherited, bool kiai, bool omitFirstBarLine) 
-            : base(offset, mpb, meter, sampleSet, sampleIndex, volume, inherited, kiai, omitFirstBarLine)
+        public StudioTimingPoint(double offset, double mpb, int meter, SampleSet sampleSet, int sampleIndex, double volume, bool uninherited, bool kiai, bool omitFirstBarLine) 
+            : base(offset, mpb, meter, sampleSet, sampleIndex, volume, uninherited, kiai, omitFirstBarLine)
         {
             
             Beat = new BeatTime();
         }
 
-        public StudioTimingPoint(double offset, double mpb, int meter, SampleSet sampleSet, int sampleIndex, double volume, bool inherited, bool kiai, bool omitFirstBarLine, double numeratorMeter, BeatTime beat) 
-            : base(offset, mpb, meter, sampleSet, sampleIndex, volume, inherited, kiai, omitFirstBarLine)
+        public StudioTimingPoint(double offset, double mpb, int meter, SampleSet sampleSet, int sampleIndex, double volume, bool uninherited, bool kiai, bool omitFirstBarLine, double numeratorMeter, BeatTime beat) 
+            : base(offset, mpb, meter, sampleSet, sampleIndex, volume, uninherited, kiai, omitFirstBarLine)
         {
             
             
@@ -57,6 +57,18 @@ namespace Mapping_Tools.Classes.TimingStudio
             Beat = new BeatTime();
         }
 
+        public StudioTimingPoint(TimingPoint timingPoint)
+        {
+            Beat = new BeatTime();
+            Kiai = timingPoint.Kiai;
+            Meter = timingPoint.Meter;
+            MpB = timingPoint.MpB;
+            Offset = timingPoint.Offset;
+            OmitFirstBarLine = timingPoint.OmitFirstBarLine;
+            SampleIndex = timingPoint.SampleIndex;
+            SampleSet = timingPoint.SampleSet;
+            Volume = timingPoint.Volume;
+        }
 
     }
 }
