@@ -12,15 +12,15 @@ using System.Text.RegularExpressions;
 
 namespace Mapping_Tools.Classes.HitsoundStuff {
     class HitsoundExporter {
-        public static void ExportCompleteHitsounds(string exportFolder, string baseBeatmap, CompleteHitsounds ch, Dictionary<SampleGeneratingArgs, SampleSoundGenerator> loadedSamples = null) {
+        public static void ExportCompleteHitsounds(string exportFolder, string baseBeatmap, CompleteHitsounds ch, Dictionary<SampleGeneratingArgs, SampleSoundGenerator> loadedSamples = null, bool layerSeperate = false) {
             // Export the beatmap with all hitsounds
-            ExportHitsounds(ch.Hitsounds, baseBeatmap, exportFolder);
+            ExportHitsounds(ch.Hitsounds, baseBeatmap, exportFolder, layerSeperate);
 
             // Export the sample files
             ExportCustomIndices(ch.CustomIndices, exportFolder, loadedSamples);
         }
 
-        public static void ExportHitsounds(List<HitsoundEvent> hitsounds, string baseBeatmap, string exportFolder) {
+        public static void ExportHitsounds(List<HitsoundEvent> hitsounds, string baseBeatmap, string exportFolder, bool layerSeperate) {
             BeatmapEditor editor = EditorReaderStuff.GetNewestVersion(baseBeatmap);
             Beatmap beatmap = editor.Beatmap;
 
@@ -47,9 +47,18 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             TimingPointsChange.ApplyChanges(beatmap.BeatmapTiming, timingPointsChanges);
 
             // Replace all hitobjects with the hitsounds
+            // TODO: Read all file's and place them into seperate an unique areas?
             beatmap.HitObjects.Clear();
             foreach (HitsoundEvent h in hitsounds) {
-                beatmap.HitObjects.Add(new HitObject(h.Time, h.GetHitsounds(), h.SampleSet, h.Additions));
+                if (layerSeperate)
+                {
+                    //HashSet<HitsoundEvent> UniqueLayerList = GetUniqueLayers(hitsounds);
+
+                }
+                else
+                {
+                    beatmap.HitObjects.Add(new HitObject(h.Time, h.GetHitsounds(), h.SampleSet, h.Additions));
+                }
             }
 
             // Change version to hitsounds
@@ -61,6 +70,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             // Save the file to the export folder
             editor.SaveFile(Path.Combine(exportFolder, beatmap.GetFileName()));
         }
+
+        //private static HashSet<HitsoundEvent> GetUniqueLayers(List<HitsoundEvent> hitsounds)
+        //{
+        //    return hitsounds;
+        //}
 
         public static void ExportCustomIndices(List<CustomIndex> customIndices, string exportFolder, Dictionary<SampleGeneratingArgs, SampleSoundGenerator> loadedSamples=null) {
             foreach (CustomIndex ci in customIndices) {

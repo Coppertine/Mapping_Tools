@@ -70,26 +70,29 @@ namespace Mapping_Tools.Views {
         }
 
         private void Make_Hitsounds(Arguments arg, BackgroundWorker worker, DoWorkEventArgs _) {
+            // Convert the multiple layers into packages that have the samples from all the layers at one specific time
+            List<SamplePackage> samplePackages = HitsoundConverter.ZipLayers(arg.HitsoundLayers, arg.DefaultSample);
+            UpdateProgressBar(worker, 10);
+
+            // Balance the volume between greenlines and samples
+            HitsoundConverter.BalanceVolumes(samplePackages, new VolumeBalancingArgs(0.1, false));
+            UpdateProgressBar(worker, 20);
+
+            // Load the samples so validation can be done
+            HashSet<SampleGeneratingArgs> allSampleArgs = new HashSet<SampleGeneratingArgs>();
+            foreach (SamplePackage sp in samplePackages)
+            {
+                allSampleArgs.UnionWith(sp.Samples.Select(o => o.SampleArgs));
+            }
+            var loadedSamples = SampleImporter.ImportSamples(allSampleArgs);
+            UpdateProgressBar(worker, 40);
+
+            // Convert the packages to hitsounds that fit on an osu standard map
+            CompleteHitsounds completeHitsounds = HitsoundConverter.GetCompleteHitsounds(samplePackages, loadedSamples);
+            UpdateProgressBar(worker, 60);
+
             if (arg.Debug) {
-                // Convert the multiple layers into packages that have the samples from all the layers at one specific time
-                List<SamplePackage> samplePackages = HitsoundConverter.ZipLayers(arg.HitsoundLayers, arg.DefaultSample);
-                UpdateProgressBar(worker, 10);
-
-                // Balance the volume between greenlines and samples
-                HitsoundConverter.BalanceVolumes(samplePackages, new VolumeBalancingArgs(0.1, false));
-                UpdateProgressBar(worker, 20);
-
-                // Load the samples so validation can be done
-                HashSet<SampleGeneratingArgs> allSampleArgs = new HashSet<SampleGeneratingArgs>();
-                foreach (SamplePackage sp in samplePackages) {
-                    allSampleArgs.UnionWith(sp.Samples.Select(o => o.SampleArgs));
-                }
-                var loadedSamples = SampleImporter.ImportSamples(allSampleArgs);
-                UpdateProgressBar(worker, 40);
-
-                // Convert the packages to hitsounds that fit on an osu standard map
-                CompleteHitsounds completeHitsounds = HitsoundConverter.GetCompleteHitsounds(samplePackages, loadedSamples);
-                UpdateProgressBar(worker, 60);
+                
 
                 int samples = 0;
                 foreach (CustomIndex ci in completeHitsounds.CustomIndices) {
@@ -115,25 +118,7 @@ namespace Mapping_Tools.Views {
                     $"Number of sample indices: {completeHitsounds.CustomIndices.Count}," +
                     $" Number of samples: {samples}, Number of green lines: {greenlines}");
             } else {
-                // Convert the multiple layers into packages that have the samples from all the layers at one specific time
-                List<SamplePackage> samplePackages = HitsoundConverter.ZipLayers(arg.HitsoundLayers, arg.DefaultSample);
-                UpdateProgressBar(worker, 10);
-
-                // Balance the volume between greenlines and samples
-                HitsoundConverter.BalanceVolumes(samplePackages, new VolumeBalancingArgs(0.1, false));
-                UpdateProgressBar(worker, 20);
-
-                // Load the samples so validation can be done
-                HashSet<SampleGeneratingArgs> allSampleArgs = new HashSet<SampleGeneratingArgs>();
-                foreach (SamplePackage sp in samplePackages) {
-                    allSampleArgs.UnionWith(sp.Samples.Select(o => o.SampleArgs));
-                }
-                var loadedSamples = SampleImporter.ImportSamples(allSampleArgs);
-                UpdateProgressBar(worker, 30);
-
-                // Convert the packages to hitsounds that fit on an osu standard map
-                CompleteHitsounds completeHitsounds = HitsoundConverter.GetCompleteHitsounds(samplePackages, loadedSamples);
-                UpdateProgressBar(worker, 60);
+                
 
                 // Delete all files in the export folder before filling it again
                 DirectoryInfo di = new DirectoryInfo(arg.ExportFolder);
