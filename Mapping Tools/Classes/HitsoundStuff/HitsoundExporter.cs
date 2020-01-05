@@ -6,11 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 
-namespace Mapping_Tools.Classes.HitsoundStuff {
+namespace Mapping_Tools.Classes.HitsoundStuff
+{
     class HitsoundExporter {
         public static void ExportCompleteHitsounds(string exportFolder, string baseBeatmap, CompleteHitsounds ch, Dictionary<SampleGeneratingArgs, SampleSoundGenerator> loadedSamples = null, bool layerSeperate = false) {
             // Export the beatmap with all hitsounds
@@ -143,5 +141,7 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
                 }
             } catch (IndexOutOfRangeException) { }
         }
+
+      
     }
 }
