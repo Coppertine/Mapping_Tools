@@ -23,6 +23,7 @@ SOFTWARE.
 using System;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Mapping_Tools.Classes.MathUtil {
     /// <summary>Represents a 2D vector using two double-precision floating-point numbers.</summary>
@@ -62,6 +63,16 @@ namespace Mapping_Tools.Classes.MathUtil {
         }
 
         /// <summary>
+        /// Constructs a new Vector2.
+        /// </summary>
+        /// <param name="x">The x coordinate of the net Vector2.</param>
+        /// <param name="y">The y coordinate of the net Vector2.</param>
+        public Vector2(System.Windows.Point p) {
+            X = p.X;
+            Y = p.Y;
+        }
+
+        /// <summary>
         /// Gets or sets the value at the index of the Vector.
         /// </summary>
         public double this[int index] {
@@ -92,6 +103,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// </summary>
         /// <see cref="LengthFast"/>
         /// <seealso cref="LengthSquared"/>
+        [JsonIgnore]
         public double Length {
             get {
                 return Math.Sqrt(X * X + Y * Y);
@@ -107,6 +119,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// </remarks>
         /// <see cref="Length"/>
         /// <seealso cref="LengthSquared"/>
+        [JsonIgnore]
         public double LengthFast {
             get {
                 return 1.0f / MathHelper.InverseSqrtFast(X * X + Y * Y);
@@ -122,6 +135,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// </remarks>
         /// <see cref="Length"/>
         /// <seealso cref="LengthFast"/>
+        [JsonIgnore]
         public double LengthSquared {
             get {
                 return X * X + Y * Y;
@@ -131,6 +145,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// <summary>
         /// Gets the angle (direction) of the vector.
         /// </summary>
+        [JsonIgnore]
         public double Theta
         {
             get
@@ -142,6 +157,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
         /// </summary>
+        [JsonIgnore]
         public Vector2 PerpendicularRight {
             get {
                 return new Vector2(Y, -X);
@@ -151,6 +167,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// <summary>
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
+        [JsonIgnore]
         public Vector2 PerpendicularLeft {
             get {
                 return new Vector2(-Y, X);
@@ -598,7 +615,6 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// Compute the angle between two vectors.
         /// </summary>
         /// <param name="vec1">The first vector</param>
-        /// <param name="vec2">The second vector</param>
         /// <returns>The angle</returns>
         public static double Angle(Vector2 vec1)
         {
@@ -610,7 +626,6 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// Compute angle between two vectors.
         /// </summary>
         /// <param name="vec1">The first vector</param>
-        /// <param name="vec2">The second vector</param>
         /// <param name="result">The angle</param>
         public static void Angle(ref Vector2 vec1, out double result)
         {
@@ -898,6 +913,7 @@ namespace Mapping_Tools.Classes.MathUtil {
         /// Gets or sets an osuTK.Vector2 with the Y and X components of this instance.
         /// </summary>
         [XmlIgnore]
+        [JsonIgnore]
         public Vector2 Yx { get { return new Vector2(Y, X); } set { Y = value.X; X = value.Y; } }
 
         /// <summary>

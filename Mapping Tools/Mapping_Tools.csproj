@@ -90,40 +90,12 @@
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.1</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoUpdater.NET, Version=1.5.4.0, Culture=neutral, PublicKeyToken=501435c91b35f4bc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autoupdater.NET.Official.1.5.4\lib\net40\AutoUpdater.NET.dll</HintPath>
+    <Reference Include="AutoUpdater.NET, Version=1.5.8.0, Culture=neutral, PublicKeyToken=501435c91b35f4bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autoupdater.NET.Official.1.5.8\lib\net40\AutoUpdater.NET.dll</HintPath>
     </Reference>
     <Reference Include="EditorReader">
       <HintPath>..\packages\EditorReader.dll</HintPath>
-    </Reference>
-    <Reference Include="GameOverlay, Version=4.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GameOverlay.Net.4.0.6\lib\net45\GameOverlay.dll</HintPath>
     </Reference>
     <Reference Include="MaterialDesignColors, Version=1.2.0.325, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.2.0\lib\net45\MaterialDesignColors.dll</HintPath>
@@ -144,7 +116,7 @@
       <HintPath>..\packages\NAudio.Vorbis.1.0.0.0\lib\net35\NAudio.Vorbis.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NonInvasiveKeyboardHookLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NonInvasiveKeyboardHookLibrary.1.4.0\lib\net452\NonInvasiveKeyboardHookLibrary.dll</HintPath>
@@ -163,18 +135,6 @@
     </Reference>
     <Reference Include="ProcessMemoryDataFinder">
       <HintPath>..\packages\ProcessMemoryDataFinder.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX, Version=3.1.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\Overlay.NET.1.0.2\lib\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct2D1, Version=3.1.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\Overlay.NET.1.0.2\lib\SharpDX.Direct2D1.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI, Version=3.1.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\Overlay.NET.1.0.2\lib\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=3.1.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\Overlay.NET.1.0.2\lib\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -205,11 +165,21 @@
     <Compile Include="Classes\BeatmapHelper\HitObjectComparer.cs" />
     <Compile Include="Classes\BeatmapHelper\HitObjectType.cs" />
     <Compile Include="Classes\BeatmapHelper\ITextLine.cs" />
+    <Compile Include="Classes\BeatmapHelper\SpecialColour.cs" />
     <Compile Include="Classes\BeatmapHelper\StoryboardEditor.cs" />
     <Compile Include="Classes\BeatmapHelper\ITextFile.cs" />
     <Compile Include="Classes\BeatmapHelper\Storyboard.cs" />
     <Compile Include="Classes\BeatmapHelper\StoryboardLayer.cs" />
     <Compile Include="Classes\BeatmapHelper\StoryboardSoundSample.cs" />
+    <Compile Include="Classes\ComboColourStudio\ColourPoint.cs" />
+    <Compile Include="Classes\ComboColourStudio\ColourPointMode.cs" />
+    <Compile Include="Classes\ComboColourStudio\ComboColourProject.cs" />
+    <Compile Include="Classes\ComboColourStudio\SpecialColourDragAndDropListBox.cs" />
+    <Compile Include="Classes\ExternalFileUtil\Reaper\EnvelopeShape.cs" />
+    <Compile Include="Classes\ExternalFileUtil\Reaper\EnvelopeTempoPoint.cs" />
+    <Compile Include="Classes\ExternalFileUtil\Reaper\ReaperEditor.cs" />
+    <Compile Include="Classes\ExternalFileUtil\Reaper\TrackItem.cs" />
+    <Compile Include="Classes\ExternalFileUtil\TempoSignature.cs" />
     <Compile Include="Classes\GenericExtensions.cs" />
     <Compile Include="Classes\HitsoundStuff\DelayFadeOutSampleProvider.cs" />
     <Compile Include="Classes\HitsoundStuff\Hitsound.cs" />
@@ -234,6 +204,7 @@
     <Compile Include="Classes\HitsoundStuff\SampleSoundGenerator.cs" />
     <Compile Include="Classes\HitsoundStuff\SF2Extension.cs" />
     <Compile Include="Classes\HitsoundStuff\VolumeBalancingArgs.cs" />
+    <Compile Include="Classes\MathUtil\BinarySearchUtil.cs" />
     <Compile Include="Classes\MathUtil\Circle.cs" />
     <Compile Include="Classes\MathUtil\Extensions.cs" />
     <Compile Include="Classes\MathUtil\BezierCurve.cs" />
@@ -242,6 +213,8 @@
     <Compile Include="Classes\MathUtil\Box2.cs" />
     <Compile Include="Classes\MathUtil\Box2d.cs" />
     <Compile Include="Classes\MathUtil\CircleArc.cs" />
+    <Compile Include="Classes\MathUtil\GradientDescentUtil.cs" />
+    <Compile Include="Classes\MathUtil\LineSegment.cs" />
     <Compile Include="Classes\MathUtil\MathHelper.cs" />
     <Compile Include="Classes\MathUtil\Matrix2.cs" />
     <Compile Include="Classes\MathUtil\Matrix2d.cs" />
@@ -270,6 +243,8 @@
     <Compile Include="Classes\MathUtil\Vector3d.cs" />
     <Compile Include="Classes\MathUtil\Vector4.cs" />
     <Compile Include="Classes\MathUtil\Vector4d.cs" />
+    <Compile Include="Classes\Sliderator\GraphStateValueGetter.cs" />
+    <Compile Include="Classes\SliderPathStuff\BezierSubdivision.cs" />
     <Compile Include="Classes\SliderPathStuff\PathApproximator.cs" />
     <Compile Include="Classes\SliderPathStuff\PathType.cs" />
     <Compile Include="Classes\MathUtil\Precision.cs" />
@@ -277,12 +252,30 @@
     <Compile Include="Classes\SliderPathStuff\SliderInterpreter.cs" />
     <Compile Include="Classes\SliderPathStuff\SliderPath.cs" />
     <Compile Include="Classes\BeatmapHelper\TValue.cs" />
+    <Compile Include="Classes\SliderPathStuff\SliderPathUtil.cs" />
     <Compile Include="Classes\SnappingTools\DashStylesEnum.cs" />
     <Compile Include="Classes\SnappingTools\CoordinateConverter.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorCollection\RelevantObjectsGeneratorCollection.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Allocation\RelevantObjectsGeneratorMethodAttribute.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Allocation\RelevantObjectPairGenerator.cs" />
-    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SameTransformGenerator.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorGroupComparer.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorInputSelection\SelectionPredicate.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorInputSelection\SelectionPredicateCollection.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorSettingses\ScaleRotateGeneratorSettings.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorSettingses\SymmetryGeneratorSettings.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorSettingses\SliderPathGeneratorSettings.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\AveragePointGenerator3.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\AveragePointGenerator2.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\AngleBisectorGenerator.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\PointBisectorGenerator.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SameTransformGenerator2.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\ScaleRotateGenerator.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SymmetryGenerator.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SameTransformGenerator4.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SameTransformGenerator3Reversed.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorSettings.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SameTransformGenerator3.cs" />
+    <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SliderPathGenerator.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SquareGenerator.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\SquareGenerator2.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\GeneratorTypes\GeneratorTemporalPositioning.cs" />
@@ -314,8 +307,11 @@
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObjectGenerators\Generators\TriangleGenerator2.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObject\RelevantObjectPreferences.cs" />
     <Compile Include="Classes\SnappingTools\DataStructure\RelevantObject\RelevantObjects\RelevantPoint.cs" />
-    <Compile Include="Classes\SnappingTools\SnappingToolsPreferences.cs" />
+    <Compile Include="Classes\SnappingTools\Serialization\SnappingToolsSaveSlot.cs" />
+    <Compile Include="Classes\SnappingTools\Serialization\SnappingToolsPreferences.cs" />
+    <Compile Include="Classes\SnappingTools\Serialization\SnappingToolsProject.cs" />
     <Compile Include="Classes\SoundFontUtil\SoundFontImporter.cs" />
+    <Compile Include="Classes\SpectrumUtil\Waveform.cs" />
     <Compile Include="Classes\SystemTools\ActionHotkey.cs" />
     <Compile Include="Classes\SystemTools\BindableBase.cs" />
     <Compile Include="Classes\SystemTools\Hotkey.cs" />
@@ -330,32 +326,89 @@
     <Compile Include="Classes\SystemTools\Settings.cs" />
     <Compile Include="Classes\SystemTools\SettingsManager.cs" />
     <Compile Include="Classes\SystemTools\TypeConverters.cs" />
+    <Compile Include="Classes\TimingStudio\BeatTime.cs" />
+    <Compile Include="Classes\ExternalFileUtil\Reaper\ReaperProject.cs" />
+    <Compile Include="Classes\TimingStudio\Serialization\TimingHelperProject.cs" />
+    <Compile Include="Classes\TimingStudio\Serialization\TimingPointType.cs" />
+    <Compile Include="Classes\TimingStudio\Serialization\TimingStudioPreferences.cs" />
+    <Compile Include="Classes\TimingStudio\StudioTimingPoint.cs" />
     <Compile Include="Classes\Tools\BezierConverter.cs" />
     <Compile Include="Classes\Tools\CircleBezierPreset.cs" />
     <Compile Include="Classes\Tools\EditorReaderStuff.cs" />
     <Compile Include="Classes\Tools\MapCleaner.cs" />
     <Compile Include="Classes\Tools\RhythmGuide.cs" />
+    <Compile Include="Classes\Tools\Sliderator.cs" />
+    <Compile Include="Components\Dialogs\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Components\Domain\ColorToBrushConverter.cs" />
     <Compile Include="Components\Domain\CommandImplementation.cs" />
+    <Compile Include="Components\Domain\MapPathStringToCountStringConverter.cs" />
+    <Compile Include="Components\Domain\FlagToBoolConverter.cs" />
+    <Compile Include="Components\Domain\IntToStringConverter.cs" />
     <Compile Include="Components\Domain\EnumToBoolConverter.cs" />
+    <Compile Include="Components\Domain\CharacterLimitValidationRule.cs" />
+    <Compile Include="Components\Domain\IsGreaterOrEqualValidationRule.cs" />
+    <Compile Include="Components\Domain\IsGreaterValidationRule.cs" />
+    <Compile Include="Components\Domain\IsLessValidationRule.cs" />
+    <Compile Include="Components\Domain\IsLessOrEqualValidationRule.cs" />
+    <Compile Include="Components\Domain\NotEmptyValidationRule.cs" />
     <Compile Include="Components\Domain\StringArrayToStringConverter.cs" />
     <Compile Include="Components\Domain\IsASCIIValidationRule.cs" />
     <Compile Include="Components\Domain\SnapDivisorToStringConverter.cs" />
+    <Compile Include="Components\Domain\TimeToStringConverter.cs" />
     <Compile Include="Components\Domain\VolumeToPercentageConverter.cs" />
     <Compile Include="Components\Domain\HitsoundToStringConverter.cs" />
     <Compile Include="Components\Domain\SampleSetToStringConverter.cs" />
     <Compile Include="Components\Domain\ImportTypeToStringConverter.cs" />
     <Compile Include="Components\Domain\ParsableDoubleListValidationRule.cs" />
     <Compile Include="Components\Domain\DoubleToStringConverter.cs" />
-    <Compile Include="Components\ViewHeaderComponent.xaml.cs">
-      <DependentUpon>ViewHeaderComponent.xaml</DependentUpon>
+    <Compile Include="Components\DragAndDropListBox.cs" />
+    <Compile Include="Components\Graph\AnchorCollection.cs" />
+    <Compile Include="Components\Graph\AnchorState.cs" />
+    <Compile Include="Components\Graph\GraphIntegralDoubleAnimation.cs" />
+    <Compile Include="Components\Graph\GraphDoubleAnimation.cs" />
+    <Compile Include="Components\Graph\IGraphAnchor.cs" />
+    <Compile Include="Components\Graph\Interpolation\CustomIntegralExtremaAttribute.cs" />
+    <Compile Include="Components\Graph\Interpolation\CustomExtremaAttribute.cs" />
+    <Compile Include="Components\Graph\Interpolation\CustomDerivativeExtremaAttribute.cs" />
+    <Compile Include="Components\Graph\Interpolation\IInvertibleInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\Helper Interpolators\PrimitiveSingleCurveInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\Helper Interpolators\PrimitiveParabolaInterpolator.cs" />
+    <Compile Include="Components\Graph\Markers\DividedBeatMarkerGenerator.cs" />
+    <Compile Include="Components\Graph\Markers\DoubleMarkerGenerator.cs" />
+    <Compile Include="Components\Graph\Markers\GraphMarker.cs" />
+    <Compile Include="Components\Graph\GraphState.cs" />
+    <Compile Include="Components\Graph\Interpolation\IDerivableInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\IIntegrableInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\InterpolatorComparer.cs" />
+    <Compile Include="Components\Graph\Interpolation\CustomInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\DoubleCurveInterpolator3.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\DoubleCurveInterpolator2.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\HalfSineInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\VerticalMirrorInterpolatorAttribute.cs" />
+    <Compile Include="Components\Graph\Interpolation\IgnoreInterpolatorAttribute.cs" />
+    <Compile Include="Components\Graph\Interpolation\IGraphInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\InterpolatorHelper.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\LinearInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\DoubleCurveInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\SingleCurveInterpolator3.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\SingleCurveInterpolator2.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\SingleCurveInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\ParabolaInterpolator.cs" />
+    <Compile Include="Components\Graph\Interpolation\Interpolators\WaveInterpolator.cs" />
+    <Compile Include="Components\Graph\Markers\IMarkerGenerator.cs" />
+    <Compile Include="Components\Graph\TensionAnchor.xaml.cs">
+      <DependentUpon>TensionAnchor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Components\HotkeyEditorControl.xaml.cs">
-      <DependentUpon>HotkeyEditorControl.xaml</DependentUpon>
+    <Compile Include="Components\Graph\GraphPointControl.cs" />
+    <Compile Include="Components\Dialogs\TypeValueDialog.xaml.cs">
+      <DependentUpon>TypeValueDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Components\ObjectVisualiser\HitObject.xaml.cs">
       <DependentUpon>HitObject.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\ObjectVisualiser\HitObjectElementMarker.cs" />
     <Compile Include="Components\ObjectVisualiser\ObjectPlayfield.xaml.cs">
       <DependentUpon>ObjectPlayfield.xaml</DependentUpon>
     </Compile>
@@ -364,6 +417,29 @@
     </Compile>
     <Compile Include="Components\ObjectVisualiser\SliderAnchorLine.xaml.cs">
       <DependentUpon>SliderAnchorLine.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\ObjectVisualiser\HitObjectElement.cs" />
+    <Compile Include="Components\TimingStudio\StudioTimingPointGraphic.xaml.cs">
+      <DependentUpon>StudioTimingPointGraphic.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\TimingStudio\TimingStudioTimeline.xaml.cs">
+      <DependentUpon>TimingStudioTimeline.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\Dialogs\SampleDialog\SampleDialog.xaml.cs">
+      <DependentUpon>SampleDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\Dialogs\SampleDialog\SampleDialogViewModel.cs" />
+    <Compile Include="Components\ViewHeaderComponent.xaml.cs">
+      <DependentUpon>ViewHeaderComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\HotkeyEditorControl.xaml.cs">
+      <DependentUpon>HotkeyEditorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\Graph\Anchor.xaml.cs">
+      <DependentUpon>Anchor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\Graph\Graph.xaml.cs">
+      <DependentUpon>Graph.xaml</DependentUpon>
     </Compile>
     <Compile Include="Components\TimeLine\TimeLine.xaml.cs">
       <DependentUpon>TimeLine.xaml</DependentUpon>
@@ -380,7 +456,9 @@
     <Compile Include="Viewmodels\HitsoundPreviewHelperVM.cs" />
     <Compile Include="Viewmodels\HitsoundStudioVM.cs" />
     <Compile Include="Viewmodels\HitsoundCopierVM.cs" />
+    <Compile Include="Viewmodels\ComboColourStudioVm.cs" />
     <Compile Include="Viewmodels\RhythmGuideVm.cs" />
+    <Compile Include="Viewmodels\SlideratorVm.cs" />
     <Compile Include="Viewmodels\TimingCopierVM.cs" />
     <Compile Include="Viewmodels\MetadataManagerVm.cs" />
     <Compile Include="Viewmodels\PropertyTransformerVM.cs" />
@@ -389,9 +467,19 @@
     <Compile Include="Viewmodels\SliderMergerVM.cs" />
     <Compile Include="Viewmodels\PreferencesVM.cs" />
     <Compile Include="Viewmodels\StandardVM.cs" />
+    <Compile Include="Viewmodels\TimingStudioVM.cs" />
+    <Compile Include="Components\Dialogs\BeatmapImportDialog.xaml.cs">
+      <DependentUpon>BeatmapImportDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HiddenToolAttribute.cs" />
     <Compile Include="Views\DontShowTitleAttribute.cs" />
     <Compile Include="Views\Extensions.cs" />
+    <Compile Include="Views\ComboColourStudio\ComboColourStudioView.xaml.cs">
+      <DependentUpon>ComboColourStudioView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Sliderator\SlideratorView.xaml.cs">
+      <DependentUpon>SlideratorView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SingleRunMappingTool.cs" />
     <Compile Include="Views\MappingTool.cs" />
     <Compile Include="Views\RhythmGuide\RhythmGuideView.xaml.cs">
@@ -401,8 +489,14 @@
       <DependentUpon>RhythmGuideWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SnappingTools\SnappingToolsOverlay.cs" />
+    <Compile Include="Views\SnappingTools\GeneratorSettingsWindow.xaml.cs">
+      <DependentUpon>GeneratorSettingsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SnappingTools\SnappingToolsPreferencesWindow.xaml.cs">
       <DependentUpon>SnappingToolsPreferencesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SnappingTools\SnappingToolsProjectWindow.xaml.cs">
+      <DependentUpon>SnappingToolsProjectWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TimingCopier\TimingCopierView.xaml.cs">
       <DependentUpon>TimingCopierView.xaml</DependentUpon>
@@ -413,11 +507,12 @@
     <Compile Include="Views\MetadataManager\MetadataManagerView.xaml.cs">
       <DependentUpon>MetadataManagerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Standard\MessageWindow.xaml.cs">
-      <DependentUpon>MessageWindow.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Classes\TimingStudio\Marker.cs" />
     <Compile Include="Views\TimingHelper\TimingHelperView.xaml.cs">
       <DependentUpon>TimingHelperView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TimingStudio\TimingStudioView.xaml.cs">
+      <DependentUpon>TimingStudioView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PropertyTransformer\PropertyTransformerView.xaml.cs">
       <DependentUpon>PropertyTransformerView.xaml</DependentUpon>
@@ -450,6 +545,49 @@
     <Compile Include="Views\HitsoundStudio\HitsoundLayerImportWindow.xaml.cs">
       <DependentUpon>HitsoundLayerImportWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Components\Dialogs\MessageDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\Graph\TensionAnchor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\ObjectVisualiser\HitObject.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\ObjectVisualiser\ObjectPlayfield.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\ObjectVisualiser\SliderAnchor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\ObjectVisualiser\SliderAnchorLine.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\Spectrum\Spectrum.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Components\TimingStudio\StudioTimingPointGraphic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Components\TimingStudio\TimingStudioTimeline.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\Dialogs\TypeValueDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Components\Dialogs\SampleDialog\SampleDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Components\ViewHeaderComponent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -458,19 +596,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Components\ObjectVisualiser\HitObject.xaml">
+    <Page Include="Components\Graph\Anchor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Components\ObjectVisualiser\ObjectPlayfield.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Components\ObjectVisualiser\SliderAnchor.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Components\ObjectVisualiser\SliderAnchorLine.xaml">
+    <Page Include="Components\Graph\Graph.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -495,7 +625,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Classes\BeatmapHelper\Beatmap.cs" />
-    <Compile Include="Classes\BeatmapHelper\Colour.cs" />
+    <Compile Include="Classes\BeatmapHelper\ComboColour.cs" />
     <Compile Include="Classes\BeatmapHelper\Editor.cs" />
     <Compile Include="Classes\BeatmapHelper\HitObject.cs" />
     <Compile Include="Classes\BeatmapHelper\Timeline.cs" />
@@ -506,6 +636,18 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\ComboColourStudio\ComboColourStudioView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\Dialogs\BeatmapImportDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Sliderator\SlideratorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\RhythmGuide\RhythmGuideView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -514,9 +656,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SnappingTools\GeneratorSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\SnappingTools\SnappingToolsPreferencesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SnappingTools\SnappingToolsProjectWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\TimingCopier\TimingCopierView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -530,11 +680,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\Standard\MessageWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\TimingHelper\TimingHelperView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\TimingStudio\TimingStudioView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

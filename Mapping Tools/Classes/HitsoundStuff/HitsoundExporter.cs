@@ -6,11 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 
-namespace Mapping_Tools.Classes.HitsoundStuff {
+namespace Mapping_Tools.Classes.HitsoundStuff
+{
     class HitsoundExporter {
         public static void ExportCompleteHitsounds(string exportFolder, string baseBeatmap, CompleteHitsounds ch, Dictionary<SampleGeneratingArgs, SampleSoundGenerator> loadedSamples = null) {
             // Export the beatmap with all hitsounds
@@ -21,15 +19,15 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         public static void ExportHitsounds(List<HitsoundEvent> hitsounds, string baseBeatmap, string exportFolder) {
-            BeatmapEditor editor = EditorReaderStuff.GetNewestVersion(baseBeatmap);
+            EditorReaderStuff.TryGetNewestVersion(baseBeatmap, out var editor);
             Beatmap beatmap = editor.Beatmap;
 
-            // Make new timingpoints
+            // Make new timing points
             List<TimingPointsChange> timingPointsChanges = new List<TimingPointsChange>();
 
-            // Add redlines
-            List<TimingPoint> redlines = beatmap.BeatmapTiming.GetAllRedlines();
-            foreach (TimingPoint tp in redlines) {
+            // Add red lines
+            List<TimingPoint> timingPoints = beatmap.BeatmapTiming.GetAllRedlines();
+            foreach (TimingPoint tp in timingPoints) {
                 timingPointsChanges.Add(new TimingPointsChange(tp, mpb: true, meter: true, inherited: true, omitFirstBarLine: true));
             }
 
@@ -69,7 +67,7 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
                         continue;
                     }
                     var samples = new List<ISampleProvider>();
-                    var volumes = new List<float>();
+                    var volumes = new List<double>();
                     int soundsAdded = 0;
                     
                     if (loadedSamples != null) {
@@ -100,14 +98,25 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
                     int maxChannels = samples.Max(o => o.WaveFormat.Channels);
                     IEnumerable<ISampleProvider> sameFormatSamples = samples.Select(o => (ISampleProvider)new WdlResamplingSampleProvider(SampleImporter.SetChannels(o, maxChannels), maxSampleRate));
 
-                    var mixer = new MixingSampleProvider(sameFormatSamples);
+                    ISampleProvider result = new MixingSampleProvider(sameFormatSamples);
 
-                    VolumeSampleProvider volumed = new VolumeSampleProvider(mixer) {
-                        Volume = 1 / (float)Math.Sqrt(soundsAdded * volumes.Average())
-                    };
+                    if (soundsAdded > 1) {
+                        result = new VolumeSampleProvider(result) {
+                            Volume = (float)(1 / Math.Sqrt(soundsAdded * volumes.Average()))
+                        };
+                        result = new SimpleCompressorEffect(result) {
+                            Threshold = 16,
+                            Ratio = 6,
+                            Attack = 0.1,
+                            Release = 0.1,
+                            Enabled = true,
+                            MakeUpGain = 15 * Math.Log10(Math.Sqrt(soundsAdded * volumes.Average()))
+                        };
+                    }
 
+                    // TODO: Allow mp3, ogg and aif export.
                     string filename = ci.Index == 1 ? kvp.Key + ".wav" : kvp.Key + ci.Index + ".wav";
-                    CreateWaveFile(Path.Combine(exportFolder, filename), volumed.ToWaveProvider16());
+                    CreateWaveFile(Path.Combine(exportFolder, filename), result.ToWaveProvider16());
                 }
             }
         }
@@ -128,5 +137,7 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
                 }
             } catch (IndexOutOfRangeException) { }
         }
+
+      
     }
 }

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
+using Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObjectGenerators;
+using Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObjectGenerators.GeneratorInputSelection;
 
 namespace Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObjectCollection {
     public class RelevantObjectCollection : Dictionary<Type, List<IRelevantObject>> {
@@ -77,6 +79,24 @@ namespace Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObjectCollec
             return result;
         }
 
+        public RelevantObjectCollection GetSubset(SelectionPredicateCollection predicate, RelevantObjectsGenerator generator) {
+            var result = new RelevantObjectCollection();
+
+            if (predicate == null) {
+                foreach (var kvp in this) {
+                    result.Add(kvp.Key, kvp.Value);
+                }
+
+                return result;
+            }
+
+            foreach (var kvp in this) {
+                result.Add(kvp.Key, kvp.Value.Where(o => predicate.Check(o, generator)).ToList());
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Merges two lists of relevant objects into one. If both lists are sorted by time then the output will also be sorted by time. Duplicates will not be removed.
         /// </summary>
@@ -115,6 +135,14 @@ namespace Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObjectCollec
             if (TryGetValue(relevantObject.GetType(), out var list)) {
                 list.Remove(relevantObject);
             }
+        }
+
+        /// <summary>
+        /// Returns the number of relevant objects in this collection
+        /// </summary>
+        /// <returns></returns>
+        public int GetCount() {
+            return this.Sum(kvp => kvp.Value.Count);
         }
     }
 }

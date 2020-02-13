@@ -5,7 +5,7 @@ using System.Windows.Media;
 using Mapping_Tools.Classes.SystemTools;
 
 namespace Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObject {
-    public class RelevantObjectPreferences : BindableBase {
+    public class RelevantObjectPreferences : BindableBase, ICloneable {
         #region private storage
         private string name;
         private Color color;
@@ -48,34 +48,27 @@ namespace Mapping_Tools.Classes.SnappingTools.DataStructure.RelevantObject {
             set => Set(ref hasSizeOption, value);
         }
 
-        public Pen GetPen() {
-            return new Pen() {
-                Brush = new SolidColorBrush {
-                    Color = Color,
-                    Opacity = Opacity,
-                },
-                DashStyle = GetDashStyle(),
-                Thickness = Thickness,
-            };
-        }
-
         public static IEnumerable<DashStylesEnum> DashStylesEnumerable => Enum.GetValues(typeof(DashStylesEnum)).Cast<DashStylesEnum>();
 
-        private DashStyle GetDashStyle() {
+        public DashStyle GetDashStyle() {
             switch (Dashstyle) {
                 case DashStylesEnum.Dash:
                     return DashStyles.Dash;
                 case DashStylesEnum.Dot:
                     return DashStyles.Dot;
-                case DashStylesEnum.DashDot:
+                case DashStylesEnum.DashSingleDot:
                     return DashStyles.DashDot;
-                case DashStylesEnum.DashDotDot:
+                case DashStylesEnum.DashDoubleDot:
                     return DashStyles.DashDotDot;
                 case DashStylesEnum.Solid:
                     return DashStyles.Solid;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public object Clone() {
+            return MemberwiseClone();
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using Mapping_Tools.Classes.MathUtil;
 
 namespace Mapping_Tools.Views {
     [SmartQuickRunUsage(SmartQuickRunTargets.Always)]
@@ -18,12 +19,24 @@ namespace Mapping_Tools.Views {
         double EndTime_monitor;
         TimeLine TL;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public event EventHandler RunFinished;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly string ToolName = "Map Cleaner";
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly string ToolDescription = $@"It cleans the current map of useless greenlines and it also lets you do some other stuff regarding the whole map.{Environment.NewLine}Map cleaner cleans useless greenline stuff by storing all the influences of the timingpoints and then removing all the timingpoints and then rebuilding all the timingpoints in a good way. This means the greenlines automatically get resnapped to the objects that use them.";
 
+        /// <summary>
+        /// Initializes the Map Cleaner view to <see cref="MainWindow"/>
+        /// </summary>
         public CleanerView() {
             InitializeComponent();
             Width = MainWindow.AppWindow.content_views.Width;
@@ -34,6 +47,9 @@ namespace Mapping_Tools.Views {
             RunTool(MainWindow.AppWindow.GetCurrentMaps(), quick: false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void QuickRun() {
             RunTool(new[] { IOHelper.GetCurrentBeatmap() }, quick: true);
         }
@@ -85,7 +101,7 @@ namespace Mapping_Tools.Views {
             bool editorRead = EditorReaderStuff.TryGetFullEditorReader(out var reader);
 
             if (args.Paths.Length == 1) {
-                BeatmapEditor editor = editorRead ? EditorReaderStuff.GetNewestVersion(args.Paths[0], reader) : new BeatmapEditor(args.Paths[0]);
+                var editor = EditorReaderStuff.GetBeatmapEditor(args.Paths[0], reader, editorRead);
 
                 List<TimingPoint> orgininalTimingPoints = new List<TimingPoint>();
                 foreach (TimingPoint tp in editor.Beatmap.BeatmapTiming.TimingPoints) { orgininalTimingPoints.Add(tp.Copy()); }
@@ -104,7 +120,7 @@ namespace Mapping_Tools.Views {
                 editor.SaveFile();
             } else {
                 foreach (string path in args.Paths) {
-                    BeatmapEditor editor = editorRead ? EditorReaderStuff.GetNewestVersion(path, reader) : new BeatmapEditor(path);
+                    var editor = EditorReaderStuff.GetBeatmapEditor(path, reader, editorRead);
 
                     int oldTimingPointsCount = editor.Beatmap.BeatmapTiming.TimingPoints.Count;
 
@@ -146,10 +162,10 @@ namespace Mapping_Tools.Views {
             
             foreach (TimingPoint tp in originalInNew) {
                 bool different = true;
-                List<TimingPoint> newTPs = newInOriginal.Where(o => o.Offset == tp.Offset).ToList();
+                List<TimingPoint> newTPs = newInOriginal.Where(o => Math.Abs(o.Offset - tp.Offset) < Precision.DOUBLE_EPSILON).ToList();
                 if (newTPs.Count == 0) { different = false; }
-                foreach (TimingPoint newTP in newTPs) {
-                    if (tp.Equals(newTP)) { different = false; }
+                foreach (TimingPoint newTp in newTPs) {
+                    if (tp.Equals(newTp)) { different = false; }
                 }
                 if (different) { TimingpointsChanged.Add(tp.Offset); }
             }
@@ -161,33 +177,28 @@ namespace Mapping_Tools.Views {
 
             TimingpointsRemoved = originalOffsets.Except(newOffsets).ToList();
             TimingpointsAdded = newOffsets.Except(originalOffsets).ToList();
-            double endTimeOriginal = originalTimingPoints.Last().Offset;
-            double endTimeNew = newTimingPoints.Last().Offset;
-            EndTime_monitor = endTimeOriginal > endTimeNew ? endTimeOriginal : endTimeNew;
+            double endTimeOriginal = originalTimingPoints.Count > 0 ? originalTimingPoints.Last().Offset : 0;
+            double endTimeNew = newTimingPoints.Count > 0 ? newTimingPoints.Last().Offset : 0;
+            EndTime_monitor = Math.Max(endTimeOriginal, endTimeNew);
         }
 
         private void FillTimeLine() {
-            if (TL != null) {
-                TL.mainCanvas.Children.Clear();
-            }
+            TL?.mainCanvas.Children.Clear();
             try {
                 TL = new TimeLine(MainWindow.AppWindow.ActualWidth, 100.0, EndTime_monitor);
-                foreach (double timing_s in TimingpointsAdded) {
-                    TL.AddElement(timing_s, 1);
+                foreach (double timingS in TimingpointsAdded) {
+                    TL.AddElement(timingS, 1);
                 }
-                foreach (double timing_s in TimingpointsChanged) {
-                    TL.AddElement(timing_s, 2);
+                foreach (double timingS in TimingpointsChanged) {
+                    TL.AddElement(timingS, 2);
                 }
-                foreach (double timing_s in TimingpointsRemoved) {
-                    TL.AddElement(timing_s, 3);
+                foreach (double timingS in TimingpointsRemoved) {
+                    TL.AddElement(timingS, 3);
                 }
                 tl_host.Children.Clear();
                 tl_host.Children.Add(TL);
             } catch (Exception ex) {
                 Console.WriteLine(ex.Message);
-                return;
-            } finally {
-
             }
         }
     }

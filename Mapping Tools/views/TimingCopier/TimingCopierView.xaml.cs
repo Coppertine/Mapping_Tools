@@ -1,17 +1,13 @@
-﻿using System;
+﻿using Mapping_Tools.Classes.BeatmapHelper;
+using Mapping_Tools.Classes.SystemTools;
+using Mapping_Tools.Classes.Tools;
+using Mapping_Tools.Viewmodels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using Mapping_Tools.Classes.BeatmapHelper;
-using Mapping_Tools.Classes.HitsoundStuff;
-using Mapping_Tools.Classes.MathUtil;
-using Mapping_Tools.Classes.SystemTools;
-using Mapping_Tools.Classes.Tools;
-using Mapping_Tools.Viewmodels;
-using static System.Console;
 
 namespace Mapping_Tools.Views {
     /// <summary>
@@ -54,8 +50,8 @@ namespace Mapping_Tools.Views {
             bool editorRead = EditorReaderStuff.TryGetFullEditorReader(out var reader);
 
             foreach (string exportPath in paths) {
-                BeatmapEditor editorTo = editorRead ? EditorReaderStuff.GetNewestVersion(exportPath, reader) : new BeatmapEditor(exportPath);
-                BeatmapEditor editorFrom = editorRead ? EditorReaderStuff.GetNewestVersion(arg.ImportPath, reader) : new BeatmapEditor(arg.ImportPath);
+                var editorTo = EditorReaderStuff.GetBeatmapEditor(exportPath, reader, editorRead);
+                var editorFrom = EditorReaderStuff.GetBeatmapEditor(arg.ImportPath, reader, editorRead);
 
                 Beatmap beatmapTo = editorTo.Beatmap;
                 Beatmap beatmapFrom = editorFrom.Beatmap;
@@ -78,7 +74,7 @@ namespace Mapping_Tools.Views {
                     if (greenlineHere.Offset == redline.Offset) {
                         removeList.Add(redline);
                     } else {
-                        redline.Inherited = false;
+                        redline.Uninherited = false;
                         redline.MpB = -100;
                     }
                 }
@@ -122,7 +118,7 @@ namespace Mapping_Tools.Views {
 
                         // Last time is the time of the last redline in between
                         double newTime = lastTime + redline.MpB * beatsFromLastTime;
-                        newTime = timingTo.Resnap(newTime, arg.Snap1, arg.Snap2, firstTP: redlines.FirstOrDefault());
+                        newTime = timingTo.Resnap(newTime, arg.Snap1, arg.Snap2, firstTp: redlines.FirstOrDefault());
                         marker.Time = newTime;
 
                         lastTime = marker.Time;
@@ -142,8 +138,8 @@ namespace Mapping_Tools.Views {
                     // Resnap hitobjects
                     foreach (HitObject ho in beatmapTo.HitObjects)
                     {
-                        ho.ResnapSelf(timingTo, arg.Snap1, arg.Snap2, firstTP: redlines.FirstOrDefault());
-                        ho.ResnapEnd(timingTo, arg.Snap1, arg.Snap2, firstTP: redlines.FirstOrDefault());
+                        ho.ResnapSelf(timingTo, arg.Snap1, arg.Snap2, firstTp: redlines.FirstOrDefault());
+                        ho.ResnapEnd(timingTo, arg.Snap1, arg.Snap2, firstTp: redlines.FirstOrDefault());
                     }
 
                     // Resnap greenlines
@@ -165,7 +161,7 @@ namespace Mapping_Tools.Views {
             }
 
             // Make an accurate message
-            string message = string.Format("Successfully copied timing to {0} {1}!", mapsDone, mapsDone == 1 ? "beatmap" : "beatmaps");
+            string message = $"Successfully copied timing to {mapsDone} {(mapsDone == 1 ? "beatmap" : "beatmaps")}!";
             return message;
         }
 
@@ -189,7 +185,7 @@ namespace Mapping_Tools.Views {
             // Calculate the beats between this marker and the last marker
             // If there is a redline in between then calculate beats from last marker to the redline and beats from redline to this marker
             // Time the same is 0
-            double lastTime = redlines.FirstOrDefault().Offset;
+            double lastTime = redlines.First().Offset;
             foreach (Marker marker in markers) {
                 // Get redlines between this and last marker
                 List<TimingPoint> redlinesBetween = redlines.Where(o => o.Offset < marker.Time && o.Offset > lastTime).ToList();
@@ -214,28 +210,34 @@ namespace Mapping_Tools.Views {
 
         private class Marker
         {
-            public object Object { get; set; }
+            public object Object { get; private set; }
             public double BeatsFromLastMarker { get; set; }
             public double Time { get => GetTime(); set => SetTime(value); }
 
-            public double GetTime() {
-                if (Object is double) {
-                    return (double)Object;
-                } else if (Object is HitObject) {
-                    return ((HitObject)Object).Time;
-                } else if (Object is TimingPoint) {
-                    return ((TimingPoint)Object).Offset;
+            private double GetTime() {
+                switch (Object) {
+                    case double d:
+                        return d;
+                    case HitObject hitObject:
+                        return hitObject.Time;
+                    case TimingPoint point:
+                        return point.Offset;
+                    default:
+                        return -1;
                 }
-                return -1;
             }
 
             private void SetTime(double value) {
-                if (Object is double) {
-                    Object = value;
-                } else if (Object is HitObject) {
-                    ((HitObject)Object).Time = value;
-                } else if (Object is TimingPoint) {
-                    ((TimingPoint)Object).Offset = value;
+                switch (Object) {
+                    case double _:
+                        Object = value;
+                        break;
+                    case HitObject hitObject:
+                        hitObject.Time = value;
+                        break;
+                    case TimingPoint point:
+                        point.Offset = value;
+                        break;
                 }
             }
 

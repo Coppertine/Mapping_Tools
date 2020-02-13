@@ -77,7 +77,7 @@ namespace Mapping_Tools.Views {
 
             foreach (string path in arg.Paths) {
                 // Open beatmap
-                BeatmapEditor editor = editorRead ? EditorReaderStuff.GetNewestVersion(path, reader) : new BeatmapEditor(path);
+                var editor = EditorReaderStuff.GetBeatmapEditor(path, reader, editorRead);
                 Beatmap beatmap = editor.Beatmap;
                 Timing timing = beatmap.BeatmapTiming;
 
@@ -96,7 +96,7 @@ namespace Mapping_Tools.Views {
                 if (arg.Greenlines) {
                     // Get the offsets of greenlines
                     foreach (TimingPoint tp in timing.TimingPoints) {
-                        if (tp.Inherited == false) {
+                        if (!tp.Uninherited) {
                             markers.Add(new Marker(tp.Offset));
                         }
                     }
@@ -104,7 +104,7 @@ namespace Mapping_Tools.Views {
                 if (arg.Redlines) {
                     // Get the offsets of redlines
                     foreach (TimingPoint tp in timing.TimingPoints) {
-                        if (tp.Inherited == true) {
+                        if (tp.Uninherited) {
                             markers.Add(new Marker(tp.Offset));
                         }
                     }
@@ -170,8 +170,8 @@ namespace Mapping_Tools.Views {
 
                 // Remove redlines except the first redline
                 if (!arg.Redlines) {
-                    var first = timing.TimingPoints.FirstOrDefault(o => o.Inherited);
-                    timing.TimingPoints.RemoveAll(o => o.Inherited && o != first);
+                    var first = timing.TimingPoints.FirstOrDefault(o => o.Uninherited);
+                    timing.TimingPoints.RemoveAll(o => o.Uninherited && o != first);
                 }
 
                 // Update progressbar

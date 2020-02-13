@@ -3,6 +3,7 @@ using Mapping_Tools.Classes.SystemTools;
 using Mapping_Tools.Classes.Tools;
 using Mapping_Tools.Viewmodels;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -51,7 +52,7 @@ namespace Mapping_Tools.Views {
             var editorRead = EditorReaderStuff.TryGetFullEditorReader(out var reader);
 
             foreach (var path in paths) {
-                var editor = editorRead ? EditorReaderStuff.GetNewestVersion(path, reader) : new BeatmapEditor(path);
+                var editor = EditorReaderStuff.GetBeatmapEditor(path, reader, editorRead);
                 var beatmap = editor.Beatmap;
 
                 beatmap.Metadata["ArtistUnicode"].StringValue = arg.Artist;
@@ -61,6 +62,15 @@ namespace Mapping_Tools.Views {
                 beatmap.Metadata["Creator"].StringValue = arg.BeatmapCreator;
                 beatmap.Metadata["Source"].StringValue = arg.Source;
                 beatmap.Metadata["Tags"].StringValue = arg.Tags;
+
+                beatmap.General["PreviewTime"] = new TValue(arg.PreviewTime.ToRoundInvariant());
+                if (arg.UseComboColours) {
+                    beatmap.ComboColours = new List<ComboColour>(arg.ComboColours);
+                    beatmap.SpecialColours.Clear();
+                    foreach (var specialColour in arg.SpecialColours) {
+                        beatmap.SpecialColours.Add(specialColour.Name, specialColour);
+                    }
+                }
 
                 // Save the file
                 editor.SaveFile();

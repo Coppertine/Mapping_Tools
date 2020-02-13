@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 using System.Windows;
 
 namespace Mapping_Tools.Classes.HitsoundStuff {
+    /// <summary>
+    /// 
+    /// </summary>
     public class LayerImportArgs : INotifyPropertyChanged, IEquatable<LayerImportArgs> {
+        /// <inheritdoc />
         public LayerImportArgs() {
             ImportType = ImportType.None;
             Path = "";
@@ -23,6 +27,7 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             VelocityRoughness = 1;
         }
 
+        /// <inheritdoc />
         public LayerImportArgs(ImportType importType) {
             ImportType = importType;
             Path = "";
@@ -39,6 +44,9 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private ImportType importType;
+        /// <summary>
+        /// 
+        /// </summary>
         public ImportType ImportType {
             get { return importType; }
             set {
@@ -52,8 +60,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private string path;
+        /// <summary>
+        /// 
+        /// </summary>
         public string Path {
-            get { return path; }
+            get => path;
             set {
                 if (path != value) {
                     path = value;
@@ -62,15 +73,29 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             }
         }
 
-        public Visibility CoordinateVisibility { get { if (ImportType == ImportType.Stack) { return Visibility.Visible; } else { return Visibility.Collapsed; } } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Visibility CoordinateVisibility =>
+            ImportType == ImportType.Stack ? Visibility.Visible : Visibility.Collapsed;
 
-        public Visibility KeysoundVisibility { get { if (ImportType == ImportType.MIDI) { return Visibility.Visible; } else { return Visibility.Collapsed; } } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Visibility KeysoundVisibility =>
+            ImportType == ImportType.MIDI ? Visibility.Visible : Visibility.Collapsed;
 
-        public bool CanImport { get { return ImportType != ImportType.None; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool CanImport => ImportType != ImportType.None;
 
         private double x;
+        /// <summary>
+        /// 
+        /// </summary>
         public double X {
-            get { return x; }
+            get => x;
             set {
                 if (x != value) {
                     x = value;
@@ -80,8 +105,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private double y;
+        /// <summary>
+        /// 
+        /// </summary>
         public double Y {
-            get { return y; }
+            get => y;
             set {
                 if (y != value) {
                     y = value;
@@ -91,8 +119,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private string samplePath;
+        /// <summary>
+        /// 
+        /// </summary>
         public string SamplePath {
-            get { return samplePath; }
+            get => samplePath;
             set {
                 if (samplePath != value) {
                     samplePath = value;
@@ -101,9 +132,23 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             }
         }
 
+        private double volume;
+        public double Volume {
+            get => volume;
+            set {
+                if (volume == value) return;
+                volume = value;
+                NotifyPropertyChanged("Volume");
+                NotifyPropertyChanged("Velocity");
+            }
+        }
+
         private int bank;
+        /// <summary>
+        /// 
+        /// </summary>
         public int Bank {
-            get { return bank; }
+            get => bank;
             set {
                 if (bank != value) {
                     bank = value;
@@ -113,8 +158,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private int patch;
+        /// <summary>
+        /// 
+        /// </summary>
         public int Patch {
-            get { return patch; }
+            get => patch;
             set {
                 if (patch != value) {
                     patch = value;
@@ -135,8 +183,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private double length;
+        /// <summary>
+        /// 
+        /// </summary>
         public double Length {
-            get { return length; }
+            get => length;
             set {
                 if (length != value) {
                     length = value;
@@ -146,8 +197,11 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
         private double lengthRoughness;
+        /// <summary>
+        /// 
+        /// </summary>
         public double LengthRoughness {
-            get { return lengthRoughness; }
+            get => lengthRoughness;
             set {
                 if (lengthRoughness != value) {
                     lengthRoughness = value;
@@ -156,20 +210,24 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             }
         }
 
-        private int velocity;
+        /// <summary>
+        /// 
+        /// </summary>
         public int Velocity {
-            get { return velocity; }
+            get => (int)Math.Round(Volume * 127);
             set {
-                if (velocity != value) {
-                    velocity = value;
-                    NotifyPropertyChanged("Velocity");
-                }
+                if (Velocity == value) return;
+                Volume = value / 127d;
+                NotifyPropertyChanged("Velocity");
             }
         }
 
         private double velocityRoughness;
+        /// <summary>
+        /// 
+        /// </summary>
         public double VelocityRoughness {
-            get { return velocityRoughness; }
+            get => velocityRoughness;
             set {
                 if (velocityRoughness != value) {
                     velocityRoughness = value;
@@ -179,16 +237,32 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propName"></param>
         public void NotifyPropertyChanged(string propName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public ImportReloadingArgs GetImportReloadingArgs() {
             return new ImportReloadingArgs(ImportType, Path, X, Y, LengthRoughness, VelocityRoughness);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
         public bool ReloadCompatible(LayerImportArgs o) {
             if (ImportType != o.ImportType)
                 return false;
@@ -208,6 +282,9 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             }
         }
 
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
         public bool Equals(LayerImportArgs other) {
             return Path == other.Path &&
                 ImportType == other.ImportType &&
@@ -223,6 +300,7 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
                 VelocityRoughness == other.VelocityRoughness;
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj) {
             if (!(obj is LayerImportArgs)) {
                 return false;
@@ -231,6 +309,8 @@ namespace Mapping_Tools.Classes.HitsoundStuff {
             return Equals((LayerImportArgs)obj);
         }
 
+        /// <summary>Serves as the default hash function. </summary>
+        /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode() {
             var hashCode = -421944398;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Path);
