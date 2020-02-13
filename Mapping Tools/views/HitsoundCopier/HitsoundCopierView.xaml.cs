@@ -342,6 +342,9 @@ namespace Mapping_Tools.Views {
                     Math.Abs(Math.Round(tloFrom.Time) - Math.Round(tloTo.Time)) <= arg.TemporalLeniency) {
                     // Copy to this tlo
                     CopyHitsounds(arg, tloFrom, tloTo);
+                } else
+                {
+
                 }
 
                 tloFrom.CanCopy = false;
