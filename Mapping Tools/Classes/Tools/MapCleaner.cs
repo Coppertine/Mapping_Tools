@@ -60,7 +60,7 @@ namespace Mapping_Tools.Classes.Tools {
         }
 
         /// <summary>
-        /// Cleans a map.
+        /// Cleans a map using the provided MapCleanerAruments.
         /// </summary>
         /// <param name="beatmap">The beatmap that is going to be cleaned.</param>
         /// <param name="args">The arguments for how to clean the beatmap.</param>
