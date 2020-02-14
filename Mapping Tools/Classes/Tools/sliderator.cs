@@ -1,8 +1,8 @@
+using Mapping_Tools.Classes.MathUtil;
+using Mapping_Tools.Classes.SliderPathStuff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mapping_Tools.Classes.MathUtil;
-using Mapping_Tools.Classes.SliderPathStuff;
 
 namespace Mapping_Tools.Classes.Tools {
     public class Sliderator {
@@ -12,7 +12,7 @@ namespace Mapping_Tools.Classes.Tools {
         public double Velocity { get; set; } // slider velocity, in px/ms
 
         private double _Pos(double s) => PositionFunction(Math.Min(s * Velocity, MaxT)); // normalized position function, px -> px
-        private double _MaxS => MaxT * Velocity; // expected pixellength
+        public double MaxS => MaxT * Velocity; // expected pixellength
 
         private List<Vector2> _path; // input path
         private List<Vector2> _diff; // path segments
@@ -50,6 +50,21 @@ namespace Mapping_Tools.Classes.Tools {
             return _path[n] + _diff[n] / _diffL[n] * (x - _pathL[n]);
         }
 
+        private LatticePoint GetNearestLatticePoint(double progression) {
+            LatticePoint nearest = null;
+            double bestError = double.PositiveInfinity;
+
+            foreach (var latticePoint in _lattice) {
+                // Simple squared sum error calculation with path position and perpendicular error
+                var error = Math.Pow(latticePoint.PathPosition - progression, 2) + 10 * Math.Pow(latticePoint.ErrorPerp, 2);
+                if (!(error < bestError)) continue;
+                bestError = error;
+                nearest = latticePoint;
+            }
+
+            return nearest;
+        }
+
         private double NextCrossing(double start, double low, double high, out int side, double precision = 0.01, double resolution = 0.25) { // where it next crosses below a lower bound or above an upper bound
             double s = start;
             double ds = resolution;
@@ -60,12 +75,12 @@ namespace Mapping_Tools.Classes.Tools {
                     s += ds;
                 else
                     ds /= 2;
-            } while (ds >= precision && s < _MaxS);
+            } while (ds >= precision && s < MaxS);
 
             if (x > high) side = 1;
             else if (x < low) side = -1;
             else side = 0;
-            return Math.Min(s + ds, _MaxS);
+            return Math.Min(s + ds, MaxS);
         }
 
         private static List<LatticePoint> LatticePoints(List<Vector2> path, double tolerance = 0.35) {
@@ -121,37 +136,216 @@ namespace Mapping_Tools.Classes.Tools {
             _lattice = LatticePoints(_path, _diff, _diffL, _pathL, 0.35);
         }
 
-        private void GetReds() {
+        private void GenerateNeurons() {
+            // These values are placeholders. Experimentation has to be done to find better parameters
+            const double maxOvershot = 12;  // Max error in wantedLength
+            const double epsilon = 0.01;  // Resolution for for speed differentiation
+            const double deltaT = 0.01;  // Size of time step
+
+            _slider = new List<Neuron>();
+
+            double actualLength = 0;
+            double nucleusTime = 0;
+            double nucleusWantedLength = 0;
+            int lastDirection = 1;
+            Neuron currentNeuron = new Neuron(_lattice.First(), 0);
+            for (double t = 0; t <= MaxT; t += deltaT) {
+                var time = Math.Min(t, MaxT);
+                var wantedLength = PositionFunction(time);  // Input is time in milliseconds and output is position in osu! pixels
+                // var wantedPosition = PositionAt(wantedLength);
+
+                var speed = (PositionFunction(time + epsilon) - wantedLength) / epsilon;
+                var direction = Math.Sign(speed);
+                var velocity = Math.Abs(speed);
+
+                // Make a new neuron if the path turns around
+                // The position of this turn-around is not entirely accurate because the actual turn-around happens somewhere in between the time steps
+                // This is the cause behind most of the error compared to the expected total length
+                if (direction != lastDirection) {
+                    var nearestLatticePoint = GetNearestLatticePoint(wantedLength);
+
+                    var newNeuron = new Neuron(nearestLatticePoint, time);
+                    currentNeuron.Terminal = newNeuron;
+
+                    currentNeuron.WantedLength = actualLength;
+                    _slider.Add(currentNeuron);
+
+                    currentNeuron = newNeuron;
+                    nucleusWantedLength = wantedLength;
+                    nucleusTime = time - deltaT;  // This subtraction is very important because this nucleus reset happens before actualLength gets calculated
+                }
+
+                actualLength = (time - nucleusTime) * Velocity;
+
+                // Make a new neuron when the error in the length becomes too large
+                if (Math.Abs(Math.Abs(wantedLength - nucleusWantedLength) - actualLength) > maxOvershot * velocity + currentNeuron.Error) {
+                    var nearestLatticePoint = GetNearestLatticePoint(wantedLength);
+
+                    if (nearestLatticePoint != currentNeuron.Nucleus) {
+                        var newNeuron = new Neuron(nearestLatticePoint, time);
+                        currentNeuron.Terminal = newNeuron;
+
+                        currentNeuron.WantedLength = actualLength;
+                        _slider.Add(currentNeuron);
+
+                        currentNeuron = newNeuron;
+                        nucleusWantedLength = wantedLength;
+                        nucleusTime = time;
+                    }
+                }
+
+                lastDirection = direction;
+            }
+            // Need to add currentNeuron at the end otherwise the last neuron would get ignored
+            currentNeuron.WantedLength = actualLength;
+            currentNeuron.Terminal = new Neuron(GetNearestLatticePoint(PositionFunction(MaxT)), MaxT);
+            _slider.Add(currentNeuron);
+
+            double totalWantedLength = _slider.Sum(n => n.WantedLength);
+            Console.WriteLine(@"Total wanted length: " + totalWantedLength);
+
+            // Multiply with ratio to exactly match the expected total length
+            var ratio = MaxS / totalWantedLength;
+            foreach (var neuron in _slider) {
+                neuron.WantedLength *= ratio;
+            }
+
+            totalWantedLength = _slider.Sum(n => n.WantedLength);
+            Console.WriteLine(@"Total wanted length after scale: " + totalWantedLength);
+            Console.WriteLine(@"Expected total wanted length: " + MaxS);
+
+            Console.WriteLine(@"Number of neurons: " + _slider.Count);
         }
 
-        private void GetInterpolation() {
+        // TODO: Improve this
+        private void GenerateAxons() {
+            // Generate bezier points that approximate the paths between neurons
+            foreach (var neuron in _slider.Where(n => n.Terminal != null)) {
+                var firstPoint = neuron.Nucleus.Pos;
+                var lastPoint = neuron.Terminal.Nucleus.Pos;
+                var middlePoint = PositionAt((neuron.Nucleus.PathPosition + neuron.Terminal.Nucleus.PathPosition) / 2);
+
+                var flatness = new BezierSubdivision(new List<Vector2> {firstPoint, middlePoint, lastPoint}).Flatness();
+
+                double length;
+                if (flatness < 0.25) {
+                    neuron.Axon = new BezierSubdivision(new List<Vector2> {firstPoint, lastPoint});
+                    length = Vector2.Distance(firstPoint, lastPoint);
+                } else {
+                    var dir = Math.Sign(neuron.Terminal.Nucleus.SegmentIndex - neuron.Nucleus.SegmentIndex);
+                    var line1 = Line2.FromPoints(_path[neuron.Nucleus.SegmentIndex], _path[neuron.Nucleus.SegmentIndex + dir]);
+                    var line2 = Line2.FromPoints(_path[neuron.Terminal.Nucleus.SegmentIndex], _path[neuron.Terminal.Nucleus.SegmentIndex - dir]);
+
+                    if (Line2.Intersection(line1, line2, out var intersection)) {
+                        neuron.Axon = new BezierSubdivision(new List<Vector2> {firstPoint, intersection, lastPoint});
+                        length = neuron.Axon.SubdividedApproximationLength();
+                    } else {
+                        neuron.Axon = new BezierSubdivision(new List<Vector2> {firstPoint, lastPoint});
+                        length = Vector2.Distance(firstPoint, lastPoint);
+                    }
+                }
+
+                // Calculate lengths
+                neuron.AxonLenth = length;
+                neuron.DendriteLength = neuron.WantedLength - neuron.AxonLenth;
+            }
         }
 
-        private void GetTumours() {
+        private void GenerateDendrites() {
+            double leftovers = 0;
+            foreach (var neuron in _slider.Where(n => n.Terminal != null)) {
+                Vector2 dendriteDir1;
+                Vector2 dendriteDir2;
+                if (Vector2.Distance(neuron.Nucleus.Pos, neuron.Terminal.Nucleus.Pos) > Precision.DOUBLE_EPSILON) {
+                    var dir = Math.Sign(neuron.Terminal.Nucleus.SegmentIndex - neuron.Nucleus.SegmentIndex);
+                    var nextPoint1 = _path[neuron.Nucleus.SegmentIndex + dir];
+                    var nextPoint2 = _path[neuron.Terminal.Nucleus.SegmentIndex - dir];
+                    dendriteDir1 = (nextPoint1 - neuron.Nucleus.Pos).Normalized();
+                    dendriteDir2 = (nextPoint2 - neuron.Nucleus.Pos).Normalized();
+                    /*if (Math.Abs(dendriteDir.X) > Math.Abs(dendriteDir.Y)) {
+                        dendriteDir.X = dendriteDir.X > 0 ? 1 : -1;
+                        dendriteDir.Y = 0;
+                    } else {
+                        dendriteDir.X = 0;
+                        dendriteDir.Y = dendriteDir.Y > 0 ? 1 : -1;
+                    }*/
+                } else {
+                    dendriteDir1 = Vector2.UnitX;
+                    dendriteDir2 = Vector2.UnitX;
+                }
+
+                // Do an even split of dendrites between this neuron and the terminal
+                var dendriteToAdd = neuron.DendriteLength + leftovers;
+                var dendriteToAddLeft = dendriteToAdd / 2;
+                var dendriteToAddRight = dendriteToAdd / 2;
+
+                while (dendriteToAddLeft > 1) {
+                    var size = MathHelper.Clamp(Math.Floor(dendriteToAddLeft), 1, Math.Min(neuron.AxonLenth * 2 + 2, 12));
+
+                    var dendrite = (dendriteDir1 * size).Rounded();
+                    while (dendrite.Length > 12) {
+                        size -= 0.5;
+                        dendrite = (dendriteDir1 * size).Rounded();
+                    }
+
+                    neuron.Dendrites.Add(dendrite);
+                    dendriteToAddLeft -= dendrite.Length;
+                }
+
+                dendriteToAddRight += dendriteToAddLeft;
+
+                // Add dendrites to the terminal pointed the opposite direction
+                while (dendriteToAddRight > 1) {
+                    var size = MathHelper.Clamp(Math.Floor(dendriteToAddRight), 1, Math.Min(neuron.AxonLenth * 2 + 2, 12));
+
+                    var dendrite = (dendriteDir2 * -size).Rounded();
+                    while (dendrite.Length > 12) {
+                        size -= 0.5;
+                        dendrite = (dendriteDir2 * -size).Rounded();
+                    }
+
+                    neuron.Terminal.Dendrites.Add(dendrite);
+                    dendriteToAddRight -= dendrite.Length;
+                }
+
+                leftovers = dendriteToAddRight;
+            }
         }
 
         private List<Vector2> AnchorsList() {
             var anchors = new List<Vector2>();
-            for (int n = 0; n < _slider.Count; n++) {
-                foreach (var t in _slider[n].Dendrites) {
-                    anchors.Add(_slider[n].Nucleus.Pos);
-                    anchors.Add(_slider[n].Nucleus.Pos + t);
-                    anchors.Add(_slider[n].Nucleus.Pos);
+            for (var index = 0; index < _slider.Count; index++) {
+                var neuron = _slider[index];
+
+                anchors.Add(neuron.Nucleus.Pos);
+                if (index != 0) {
+                    anchors.Add(neuron.Nucleus.Pos);
                 }
-                anchors.AddRange(_slider[n].Axon.Points);
+
+                foreach (var t in neuron.Dendrites) {
+                    anchors.Add(neuron.Nucleus.Pos + t);
+                    anchors.Add(neuron.Nucleus.Pos);
+                    anchors.Add(neuron.Nucleus.Pos);
+                }
+
+                anchors.AddRange(neuron.Axon.Points.GetRange(1, neuron.Axon.Points.Count - 2));
+                if (index == _slider.Count - 1) {
+                    anchors.Add(neuron.Axon.Points.Last());
+                }
             }
+
             return anchors;
         }
 
         public List<Vector2> Sliderate() {
             GetLatticePoints();
-            GetReds();
-            GetInterpolation();
-            GetTumours();
+            GenerateNeurons();
+            GenerateAxons();
+            GenerateDendrites();
             return AnchorsList();
         }
 
-        internal struct LatticePoint {
+        internal class LatticePoint {
             public Vector2 Pos; // lattice point
             public Vector2 PathPoint; // point on path
             public double PathPosition; // position along path
@@ -181,14 +375,22 @@ namespace Mapping_Tools.Classes.Tools {
             public Neuron Terminal; // end lattice point
             public double Length; // placeholder
             public double Error; // placeholder
+            public double WantedLength;
+            public double DendriteLength;
+            public double AxonLenth;
+            public double Time;
 
-            public Neuron(LatticePoint startLatticePoint) {
+            public Neuron(LatticePoint startLatticePoint, double time) {
                 Nucleus = startLatticePoint;
                 Dendrites = new List<Vector2>();
                 Axon = new BezierSubdivision(new List<Vector2> {startLatticePoint.Pos});
                 Terminal = null;
                 Length = 0;
                 Error = 0;
+                WantedLength = 0;
+                DendriteLength = 0;
+                AxonLenth = 0;
+                Time = time;
             }
         }
 
