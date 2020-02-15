@@ -488,9 +488,6 @@
     <Compile Include="Views\RhythmGuide\RhythmGuideWindow.xaml.cs">
       <DependentUpon>RhythmGuideWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TumourGenerator\TumourGeneratorView.xaml.cs">
-      <DependentUpon>TumourGeneratorView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SnappingTools\SnappingToolsOverlay.cs" />
     <Compile Include="Views\SnappingTools\GeneratorSettingsWindow.xaml.cs">
       <DependentUpon>GeneratorSettingsWindow.xaml</DependentUpon>
@@ -660,10 +657,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SnappingTools\GeneratorSettingsWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\TumourGenerator\TumourGeneratorView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
