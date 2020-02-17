@@ -33,6 +33,12 @@ namespace Mapping_Tools.Viewmodels {
         private double _velocityLimit;
         private bool _showRedAnchors;
         private bool _showGraphAnchors;
+        private bool _manualVelocity;
+        private double _newVelocity;
+        private double _minDendrite;
+        private double _distanceTraveled;
+        private bool _delegateToBpm;
+        private bool _removeSliderTicks;
 
         #region Properties
 
@@ -67,6 +73,7 @@ namespace Mapping_Tools.Viewmodels {
             set {
                 if (Set(ref _globalSv, value)) {
                     UpdateSvGraphMultiplier();
+                    RaisePropertyChanged(nameof(ExpectedSegments));
                 }
             } 
         }
@@ -77,6 +84,7 @@ namespace Mapping_Tools.Viewmodels {
             set {
                 if (Set(ref _graphBeats, value)) {
                     UpdateAnimationDuration();
+                    RaisePropertyChanged(nameof(ExpectedSegments));
                 }
             }
         }
@@ -162,6 +170,55 @@ namespace Mapping_Tools.Viewmodels {
             set => Set(ref _showGraphAnchors, value);
         }
 
+        public bool ManualVelocity {
+            get => _manualVelocity;
+            set => Set(ref _manualVelocity, value);
+        }
+
+        public double NewVelocity {
+            get => _newVelocity;
+            set  {
+                if (Set(ref _newVelocity, value)) {
+                    RaisePropertyChanged(nameof(ExpectedSegments));
+                }
+            }
+        }
+
+        public double MinDendrite {
+            get => _minDendrite;
+            set {
+                if (Set(ref _minDendrite, value)) {
+                    RaisePropertyChanged(nameof(ExpectedSegments));
+                }
+            }
+        }
+
+        public double DistanceTraveled {
+            get => _distanceTraveled;
+            set {
+                if (Set(ref _distanceTraveled, value)) {
+                    RaisePropertyChanged(nameof(ExpectedSegments));
+                }
+            }
+        }
+
+        public int ExpectedSegments {
+            get {
+                var newLength = NewVelocity * 100 * GlobalSv * GraphBeats;
+                return (int)((newLength - DistanceTraveled) / MinDendrite + DistanceTraveled / 10);
+            }
+        }
+
+        public bool DelegateToBpm {
+            get => _delegateToBpm;
+            set => Set(ref _delegateToBpm, value);
+        }
+
+        public bool RemoveSliderTicks {
+            get => _removeSliderTicks;
+            set => Set(ref _removeSliderTicks, value);
+        }
+
         [JsonIgnore]
         public CommandImplementation ImportCommand { get; }
         [JsonIgnore]
@@ -191,6 +248,12 @@ namespace Mapping_Tools.Viewmodels {
             GraphMode = GraphMode.Position;
             ShowRedAnchors = false;
             ShowGraphAnchors = false;
+            ManualVelocity = false;
+            NewVelocity = 1;
+            MinDendrite = 2;
+            DistanceTraveled = 0;
+            DelegateToBpm = false;
+            RemoveSliderTicks = false;
 
             ImportCommand = new CommandImplementation(Import);
             MoveLeftCommand = new CommandImplementation(_ => {

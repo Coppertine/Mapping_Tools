@@ -30,7 +30,7 @@ namespace Mapping_Tools.Views {
     public partial class SlideratorView : ISavable<SlideratorVm> {
         public static readonly string ToolName = "Sliderator";
 
-        public static readonly string ToolDescription = "";
+        public static readonly string ToolDescription = "test";
 
         private bool _ignoreAnchorsChange;
 
@@ -143,6 +143,7 @@ namespace Mapping_Tools.Views {
 
             AnimateProgress(GraphHitObjectElement);
             UpdatePointsOfInterest();
+            UpdateVelocity();
         }
 
         private bool NextOverSpeedLimit(Anchor anchor) {
@@ -172,6 +173,16 @@ namespace Mapping_Tools.Views {
         private void AnchorsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             AnimateProgress(GraphHitObjectElement);
             UpdatePointsOfInterest();
+            UpdateVelocity();
+        }
+
+        private void UpdateVelocity() {
+            ViewModel.DistanceTraveled = ViewModel.GraphMode == GraphMode.Position ? 
+                Graph.Anchors.GetDistanceTraveled() * ViewModel.PixelLength : 
+                Graph.Anchors.GetIntegralDistanceTraveled() * ViewModel.SvGraphMultiplier * ViewModel.PixelLength;
+            if (!ViewModel.ManualVelocity) {
+                ViewModel.NewVelocity = GetMaxVelocity(ViewModel, Graph.Anchors);
+            }
         }
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -210,6 +221,7 @@ namespace Mapping_Tools.Views {
             UpdateGraphModeStuff();
             AnimateProgress(GraphHitObjectElement);
             UpdatePointsOfInterest();
+            UpdateVelocity();
             Graph.HorizontalMarkerGenerator = new DividedBeatMarkerGenerator(ViewModel.BeatSnapDivisor);
             Graph.Anchors.CollectionChanged += AnchorsOnCollectionChanged;
             Graph.Anchors.AnchorsChanged += AnchorsOnAnchorsChanged;
@@ -412,7 +424,7 @@ namespace Mapping_Tools.Views {
                 return false;
             }
 
-            var maxVelocity = GetMaxVelocity(ViewModel, Graph.Anchors);
+            var maxVelocity = ViewModel.NewVelocity;
             if (double.IsInfinity(maxVelocity)) {
                 message = "Infinite slope on the path is illegal.";
                 return false;
@@ -485,7 +497,7 @@ namespace Mapping_Tools.Views {
             if (worker != null && worker.WorkerReportsProgress) worker.ReportProgress(10);
 
             // Get the highest velocity occuring in the graph
-            double velocity = GetMaxVelocity(arg, arg.GraphState.Anchors); // Velocity is in SV
+            double velocity = arg.NewVelocity; // Velocity is in SV
             // Do bad stuff to the velocity to make sure its the same SV as after writing it to .osu code
             velocity = -100 / double.Parse((-100 / velocity).ToInvariant(), CultureInfo.InvariantCulture);
             // Other velocity is in px / ms
@@ -510,7 +522,8 @@ namespace Mapping_Tools.Views {
             // Do Sliderator
             var sliderator = new Sliderator {
                 PositionFunction = positionFunction, MaxT = arg.GraphBeats / arg.BeatsPerMinute * 60000,
-                Velocity = otherVelocity
+                Velocity = otherVelocity,
+                MinDendriteLength = arg.MinDendrite
             };
             sliderator.SetPath(path);
 
@@ -544,6 +557,7 @@ namespace Mapping_Tools.Views {
             clone.SetAllCurvePoints(slideration);
             clone.SliderType = PathType.Bezier;
             clone.PixelLength = sliderator.MaxS;
+            clone.SliderVelocity = velocity;
 
             // Update progressbar
             if (worker != null && worker.WorkerReportsProgress) worker.ReportProgress(70);
@@ -557,14 +571,39 @@ namespace Mapping_Tools.Views {
             }
 
             // Add SV
-            clone.SliderVelocity = velocity;
-            var timingPointsChanges = beatmap.HitObjects.Select(ho => {
+            var timingPointsChanges = new List<TimingPointsChange>();
+
+            if (arg.DelegateToBpm) {
+                var tpAfter = timing.GetRedlineAtTime(clone.Time).Copy();
+                var tpOn = tpAfter.Copy();
+
+                tpAfter.Offset = clone.Time;
+                tpOn.Offset = clone.Time - 1;  // This one will be on the slider
+
+                tpAfter.OmitFirstBarLine = true;
+                tpOn.OmitFirstBarLine = true;
+
+                // Express velocity in BPM
+                tpOn.MpB /= clone.SliderVelocity;
+                // NaN SV results in removal of slider ticks
+                clone.SliderVelocity = arg.RemoveSliderTicks ? double.NaN : 1;
+                
+                // Add redlines
+                timingPointsChanges.Add(new TimingPointsChange(tpOn, mpb:true, inherited:true, omitFirstBarLine:true, fuzzyness:0));
+                timingPointsChanges.Add(new TimingPointsChange(tpAfter, mpb:true, inherited:true, omitFirstBarLine:true, fuzzyness:0));
+
+                clone.Time -= 1;
+            }
+
+            // Add SV for every hit object so the SV doesnt change for anything else than the sliderated slider
+            timingPointsChanges.AddRange(beatmap.HitObjects.Select(ho => {
                     var sv = ho.SliderVelocity;
                     var tp = timing.GetTimingPointAtTime(ho.Time).Copy();
                     tp.MpB = -100 / sv;
                     tp.Offset = ho.Time;
-                    return new TimingPointsChange(tp, mpb: true);
-                }).ToList();
+                    return new TimingPointsChange(tp, mpb: true, fuzzyness:0);
+                }));
+
             TimingPointsChange.ApplyChanges(timing, timingPointsChanges);
 
             // Update progressbar
