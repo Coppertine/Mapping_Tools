@@ -208,11 +208,13 @@ namespace Mapping_Tools.Classes.Tools {
             }
             // Need to add currentNeuron at the end otherwise the last neuron would get ignored
             currentNeuron.WantedLength = actualLength;
-            currentNeuron.Terminal = new Neuron(GetNearestLatticePoint(PositionFunction(MaxT)), MaxT);
+            var lastNeuron = new Neuron(GetNearestLatticePoint(PositionFunction(MaxT)), MaxT);
+            currentNeuron.Terminal = lastNeuron;
             _slider.Add(currentNeuron);
+            _slider.Add(lastNeuron);
 
             double totalWantedLength = _slider.Sum(n => n.WantedLength);
-            Console.WriteLine(@"Total wanted length: " + totalWantedLength);
+            //Console.WriteLine(@"Total wanted length: " + totalWantedLength);
 
             // Multiply with ratio to exactly match the expected total length
             var ratio = MaxS / totalWantedLength;
@@ -221,10 +223,10 @@ namespace Mapping_Tools.Classes.Tools {
             }
 
             totalWantedLength = _slider.Sum(n => n.WantedLength);
-            Console.WriteLine(@"Total wanted length after scale: " + totalWantedLength);
-            Console.WriteLine(@"Expected total wanted length: " + MaxS);
+            //Console.WriteLine(@"Total wanted length after scale: " + totalWantedLength);
+            //Console.WriteLine(@"Expected total wanted length: " + MaxS);
 
-            Console.WriteLine(@"Number of neurons: " + _slider.Count);
+            //Console.WriteLine(@"Number of neurons: " + _slider.Count);
         }
 
         private void GenerateAxons() {
@@ -236,10 +238,9 @@ namespace Mapping_Tools.Classes.Tools {
 
                 var flatness = new BezierSubdivision(new List<Vector2> {firstPoint, middlePoint, lastPoint}).Flatness();
 
-                double length;
-                if (flatness < 0.1) {
+                double length = Vector2.Distance(firstPoint, lastPoint);
+                if (flatness < 0.1 || length < 8) {
                     neuron.Axon = new BezierSubdivision(new List<Vector2> {firstPoint, lastPoint});
-                    length = Vector2.Distance(firstPoint, lastPoint);
                 } else {
                     neuron.Axon = DoubleMiddleApproximation(neuron, middlePoint, out length);
                 }
@@ -287,7 +288,7 @@ namespace Mapping_Tools.Classes.Tools {
             Vector2 diff = Vector2.UnitX;
             for (int i = 0; i < 10; i++) {
                 diff = _diff[MathHelper.Clamp(index + i, 0, _diff.Count - 1)];
-                if (diff.X > Precision.DOUBLE_EPSILON || diff.Y > Precision.DOUBLE_EPSILON) {
+                if (Math.Abs(diff.X) > Precision.DOUBLE_EPSILON || Math.Abs(diff.Y) > Precision.DOUBLE_EPSILON) {
                     return diff;
                 }
             }
@@ -297,9 +298,11 @@ namespace Mapping_Tools.Classes.Tools {
 
         private void GenerateDendrites() {
             double leftovers = 0;
+            //double totalDendriteToAddLength = 0;
             foreach (var neuron in _slider.Where(n => n.Terminal != null)) {
                 // Find angles for the neuron and the terminal to point the dendrites towards
                 var dir = Math.Sign(neuron.Terminal.Nucleus.PathPosition - neuron.Nucleus.PathPosition);
+                dir = dir == 0 ? 1 : dir;
                 var dendriteDir1 = dir * NearbyNonZeroDiff(neuron.Nucleus.SegmentIndex).Normalized();
                 var dendriteDir2 = -dir * NearbyNonZeroDiff(neuron.Terminal.Nucleus.SegmentIndex).Normalized();
 
@@ -319,17 +322,42 @@ namespace Mapping_Tools.Classes.Tools {
                 var dendriteToAddLeft = dendriteToAdd * leftPortion;
                 var dendriteToAddRight = dendriteToAdd * rightPortion;
 
+                //totalDendriteToAddLength += dendriteToAddLeft;
+                //totalDendriteToAddLength += dendriteToAddRight;
+
                 // Get the speeds at the times of the dendrites to give the dendrites appriopriate lengths to the speed at the time
                 var speedLeft = GetSpeedAtTime(neuron.Time + dendriteToAddLeft / Velocity / 2, 0.01);
                 var speedRight = GetSpeedAtTime(neuron.Terminal.Time - dendriteToAddRight / Velocity / 2, 0.01);
 
-                dendriteToAddRight += AddDendriteLength(neuron, dendriteToAddLeft, dendriteDir1, MinDendriteLength, Math.Pow(10 * speedLeft, 2));
-                leftovers = AddDendriteLength(neuron.Terminal, dendriteToAddRight, dendriteDir2, MinDendriteLength, Math.Pow(10 * speedRight, 2));
+                //Console.WriteLine($@"Adding {dendriteToAddLeft + dendriteToAddRight} length to dendrites!");
+                //var beforeLength = neuron.Dendrites.Sum(d => d.Length) + neuron.Terminal.Dendrites.Sum(d => d.Length);
+
+                dendriteToAddRight += AddDendriteLength(neuron, dendriteToAddLeft, dendriteDir1, MinDendriteLength, 4 * Math.Pow(speedLeft * 2, 2));
+                leftovers = AddDendriteLength(neuron.Terminal, dendriteToAddRight, dendriteDir2, MinDendriteLength, 4 * Math.Pow(speedRight * 2, 2));
+
+                //var afterLength = neuron.Dendrites.Sum(d => d.Length) + neuron.Terminal.Dendrites.Sum(d => d.Length);
+                //Console.WriteLine($@"Actually added {afterLength - beforeLength} length to dendrites and got {leftovers} leftover!");
             }
+
+            /*double actualLength = 0;
+            double wantedLength = 0;
+            double axonLength = 0;
+            double dendriteLength = 0;
+            foreach (var n in _slider) {
+                actualLength += n.AxonLenth + n.Dendrites.Sum(d => d.Length);
+                wantedLength += n.WantedLength;
+                axonLength += n.AxonLenth;
+                dendriteLength += n.DendriteLength;
+            }
+            Console.WriteLine("Path length: " + actualLength);
+            Console.WriteLine("Wanted length: " + wantedLength);
+            Console.WriteLine("Axon length: " + axonLength);
+            Console.WriteLine("Dendrite length: " + dendriteLength);
+            Console.WriteLine("DendriteToAdd length: " + totalDendriteToAddLength);*/
         }
         
         private static double AddDendriteLength(Neuron neuron, double length, Vector2 dir, double minLength, double maxLength) {
-            while (length > 1) {
+            while (length > minLength) {
                 var size = MathHelper.Clamp(Math.Floor(length), Math.Max(minLength, 1), Math.Min(maxLength, 12));
 
                 var dendrite = (dir * -size).Rounded();
@@ -345,11 +373,10 @@ namespace Mapping_Tools.Classes.Tools {
                 // Prevent any dendrites shorter than 1 to never get an infinite loop
                 if (dendriteLength < 1) {
                     dendrite = Vector2.UnitX;
-                    dendriteLength = 1;
                 }
 
                 neuron.Dendrites.Add(dendrite);
-                length -= dendriteLength;
+                length -= dendrite.Length;
             }
 
             return length;
@@ -371,11 +398,12 @@ namespace Mapping_Tools.Classes.Tools {
                     anchors.Add(neuron.Nucleus.Pos);
                 }
 
-                anchors.AddRange(neuron.Axon.Points.GetRange(1, neuron.Axon.Points.Count - 2));
-                if (index == _slider.Count - 1) {
-                    anchors.Add(neuron.Axon.Points.Last());
+                if (index != _slider.Count - 1) {
+                    anchors.AddRange(neuron.Axon.Points.GetRange(1, neuron.Axon.Points.Count - 2));
                 }
             }
+
+            anchors.RemoveAt(anchors.Count - 1);
 
             return anchors;
         }
@@ -386,6 +414,16 @@ namespace Mapping_Tools.Classes.Tools {
             GenerateAxons();
             GenerateDendrites();
             return AnchorsList();
+        }
+         
+        public List<Vector2> SliderateStream(double deltaT) {
+            var points = new List<Vector2>();
+
+            for (double t = 0; t <= MaxT + Precision.DOUBLE_EPSILON; t += deltaT) {
+                points.Add(PositionAt(PositionFunction(t)).Rounded());
+            }
+
+            return points;
         }
 
         internal class LatticePoint {
